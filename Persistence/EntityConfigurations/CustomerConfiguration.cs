@@ -13,13 +13,59 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
-        builder.ToTable("Customers").HasKey(a => a.Id);
+        builder.ToTable("Customers");
 
-        builder.Property(a => a.Id).HasColumnName("Id").IsRequired();
-        builder.Property(a => a.ChargeName).HasColumnName("ChargeName");
-        builder.Property(a => a.Debit).HasColumnName("Debit");
-        builder.Property(a => a.CreatedDate).HasColumnName("CreatedDate").IsRequired();
-        builder.Property(a => a.UpdatedDate).HasColumnName("UpdatedDate");
-        builder.Property(a => a.DeletedDate).HasColumnName("DeletedDate");
+        builder.HasKey(c => c.Id);
+
+        builder.Property(c => c.Id)
+            .IsRequired()
+            .HasColumnType("uniqueidentifier");
+
+        builder.Property(c => c.ChargeName)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)");
+
+        builder.Property(c => c.Debit)
+            .IsRequired()
+            .HasColumnType("int");
+
+        builder.Property(c => c.CreatedDate)
+            .IsRequired()
+            .HasColumnType("datetime2(7)");
+
+        builder.Property(c => c.UpdatedDate)
+            .HasColumnType("datetime2(7)");
+
+        builder.Property(c => c.DeletedDate)
+            .HasColumnType("datetime2(7)");
+
+        builder.Property(c => c.Name)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)");
+
+        builder.Property(c => c.PhoneNumber)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)");
+
+        builder.Property(c => c.IdentityNumber)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)");
+
+        builder.Property(c => c.Email)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)");
+
+        builder.Property(c => c.PasswordHash)
+            .IsRequired()
+            .HasColumnType("varbinary(max)");
+
+        builder.Property(c => c.PasswordSalt)
+            .IsRequired()
+            .HasColumnType("varbinary(max)");
+
+        builder.Property(c => c.IsActive)
+            .HasColumnType("bit")
+            .HasColumnName("isActive");
+
     }
 }

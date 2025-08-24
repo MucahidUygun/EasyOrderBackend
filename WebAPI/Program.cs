@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Persistence;
+using Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+// Baðlantý dizesini yapýlandýrma
 
 var app = builder.Build();
 
