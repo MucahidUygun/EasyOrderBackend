@@ -105,6 +105,7 @@ where TContext : DbContext
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
+        entity.CreatedDate = DateTime.UtcNow;
         await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
         await Context.SaveChangesAsync(cancellationToken);
         return entity;

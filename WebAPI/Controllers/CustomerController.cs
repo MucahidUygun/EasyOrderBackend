@@ -23,7 +23,7 @@ public class CustomerController : BaseController
     }
 
     [HttpPut]
-    public async Task<IActionResult> Updated([FromBody] UpdateCustomerCommand request)
+    public async Task<IActionResult> Update([FromBody] UpdateCustomerCommand request)
     {
         UpdatedCustomerResponse response = await Mediator.Send(request);
         return Ok(response);

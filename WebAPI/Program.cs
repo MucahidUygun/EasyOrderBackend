@@ -1,11 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Application;
+using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -22,7 +21,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+//Hata yönetiminin baþlangýçta ayaða kaldýrýlan yer
+app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

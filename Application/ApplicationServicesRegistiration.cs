@@ -1,4 +1,6 @@
-﻿using Application.Services.Customers;
+﻿using Application.Features.Customers.Rules;
+using Application.Services.Customers;
+using Application.Services.IndividualCustomers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -20,6 +22,8 @@ public static class ApplicationServicesRegistiration
             configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
         services.AddScoped<ICustomerService, CustomerManager>();
+        services.AddScoped<CustomerBusinessRules>();
+        services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();
         return services;
     }
 }

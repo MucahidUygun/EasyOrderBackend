@@ -5,6 +5,7 @@ using Domain.Entities;
 using Application.Features.Customers.Dtos.Response;
 using Application.Services.Customers;
 using Core.Security.Hashing;
+using Application.Features.Customers.Rules;
 
 namespace Application.Features.Customers.Commands.Create;
 
@@ -17,9 +18,11 @@ public class CreateCustomerCommand:IRequest<CreatedCustomerResponse>
 
         public readonly IMapper _mapper;
         public readonly ICustomerService _repository;
+        public readonly CustomerBusinessRules _rules;
 
-        public CreateCustomerCommandHandler(IMapper mapper,ICustomerService repository)
+        public CreateCustomerCommandHandler(IMapper mapper,ICustomerService repository,CustomerBusinessRules rules)
         {
+            _rules = rules;
             _mapper = mapper;
             _repository = repository;
         }

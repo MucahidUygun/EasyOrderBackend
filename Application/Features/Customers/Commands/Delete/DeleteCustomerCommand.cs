@@ -1,5 +1,6 @@
 ﻿using Application.Features.Customers.Dtos.Requests;
 using Application.Features.Customers.Dtos.Responses;
+using Application.Features.Customers.Rules;
 using Application.Services.Customers;
 using AutoMapper;
 using Domain.Entities;
@@ -18,17 +19,20 @@ public class DeleteCustomerCommand : IRequest<DeletedCustomerResponse>
 
     class DeleteCustomerHandler : IRequestHandler<DeleteCustomerCommand, DeletedCustomerResponse>
     {
-        public readonly IMapper _mapper;
-        public readonly ICustomerService _service;
+        private readonly IMapper _mapper;
+        private readonly ICustomerService _service;
+        private readonly CustomerBusinessRules _rules;
 
-        public DeleteCustomerHandler(IMapper mapper, ICustomerService service)
+        public DeleteCustomerHandler(IMapper mapper, ICustomerService service,CustomerBusinessRules rules)
         {
+            _rules = rules;
             _mapper = mapper;
             _service = service;
         }
 
         public async Task<DeletedCustomerResponse> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
+            await _rules.CustomerIdShouldExistWhenSelected(request.request.Id,cancellationToken:cancellationToken);
             DeletedCustomerResponse response = _mapper.Map<DeletedCustomerResponse>
                 (
                 await _service.DeleteAsync(request.request)

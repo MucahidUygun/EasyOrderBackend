@@ -13,8 +13,9 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 {
     public void Configure(EntityTypeBuilder<Employee> builder)
     {
-        builder.ToTable("Employees").HasKey(a => a.Id);
+        builder.ToTable("Employees");
 
+        builder.Property(p => p.Id).HasColumnName("Id").IsRequired();
         builder.Property(a => a.Position).HasColumnName("Position");
         builder.Property(a => a.Sallary).HasColumnName("Sallary");
         builder.Property(c => c.IsActive).HasColumnType("bit");

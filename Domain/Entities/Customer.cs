@@ -8,6 +8,5 @@ namespace Domain.Entities;
 
 public class Customer : User
 {
-    public string ChargeName { get; set; }
-    public int Debit { get; set; }
+    public decimal AccountBalance { get; set; }
 }

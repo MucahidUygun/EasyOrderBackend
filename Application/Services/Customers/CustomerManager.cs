@@ -30,6 +30,8 @@ public class CustomerManager : ICustomerService
     public async Task<Customer> AddAsync(Customer customer, CancellationToken cancellationToken = default)
     {
         customer.Id = new Guid();
+        if (await _repository.AnyAsync(p => p.Id == customer.Id))
+            await AddAsync(customer, cancellationToken);
         customer.IsActive = true;
         Customer addedCustomer = await _repository.AddAsync(customer, cancellationToken);
         return addedCustomer;
@@ -85,5 +87,14 @@ public class CustomerManager : ICustomerService
         return customer;
     }
 
-    
+    public Task<bool> AnyAsync(Expression<Func<Customer, bool>>? predicate = null, bool withDeleted = false, bool enableTracking = true, CancellationToken cancellationToken = default)
+    {
+        return _repository.AnyAsync
+            (
+            predicate:predicate,
+            withDeleted:withDeleted,
+            enableTracking:enableTracking,
+            cancellationToken
+            );
+    }
 }

@@ -15,19 +15,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
     {
         builder.ToTable("Customers");
 
-        builder.HasKey(c => c.Id);
-
         builder.Property(c => c.Id)
             .IsRequired()
             .HasColumnType("uniqueidentifier");
-
-        builder.Property(c => c.ChargeName)
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(c => c.Debit)
-            .IsRequired()
-            .HasColumnType("int");
 
         builder.Property(c => c.CreatedDate)
             .IsRequired()
@@ -38,16 +28,8 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.Property(c => c.DeletedDate)
             .HasColumnType("datetime2(7)");
-
-        builder.Property(c => c.Name)
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
+        
         builder.Property(c => c.PhoneNumber)
-            .IsRequired()
-            .HasColumnType("nvarchar(max)");
-
-        builder.Property(c => c.IdentityNumber)
             .IsRequired()
             .HasColumnType("nvarchar(max)");
 

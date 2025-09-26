@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Customers\Constants\" />
-    <Folder Include="Features\Customers\Rules\" />
+    <Folder Include="Features\IndividualCustomers\Constants\" />
   </ItemGroup>
 
   <ItemGroup>

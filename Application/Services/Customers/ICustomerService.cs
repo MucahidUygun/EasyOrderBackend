@@ -37,4 +37,9 @@ public interface ICustomerService
         bool enableTracking = true,
         CancellationToken cancellationToken = default
         );
+    public Task<bool> AnyAsync(
+        Expression<Func<Customer, bool>>? predicate = null,
+        bool withDeleted = false,
+        bool enableTracking = true,
+        CancellationToken cancellationToken = default);
 }

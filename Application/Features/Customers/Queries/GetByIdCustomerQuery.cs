@@ -1,5 +1,6 @@
 ﻿using Application.Features.Customers.Dtos.Requests;
 using Application.Features.Customers.Dtos.Responses;
+using Application.Features.Customers.Rules;
 using Application.Services.Customers;
 using AutoMapper;
 using Domain.Entities;
@@ -19,17 +20,20 @@ public class GetByIdCustomerQuery : IRequest<GetByIdCustomerQueryResponse>
     public class GetByIdCustomerHandle : IRequestHandler<GetByIdCustomerQuery, GetByIdCustomerQueryResponse>
     {
         public readonly IMapper _mapper;
+        public readonly CustomerBusinessRules _rules;
         public readonly ICustomerService _service;
 
-        public GetByIdCustomerHandle(IMapper mapper, ICustomerService service)
+        public GetByIdCustomerHandle(IMapper mapper, CustomerBusinessRules rules, ICustomerService service)
         {
+            _rules = rules;
             _mapper = mapper;
             _service = service;
         }
 
         public async Task<GetByIdCustomerQueryResponse> Handle(GetByIdCustomerQuery request, CancellationToken cancellationToken)
         {
-            Customer customer = await _service.GetAsync(p=>p.Id == request.request.Id);
+            await _rules.CustomerIdShouldExistWhenSelected(request.request.Id, cancellationToken: cancellationToken);
+            Customer customer = await _service.GetAsync(p => p.Id == request.request.Id);
 
             GetByIdCustomerQueryResponse response = _mapper.Map<GetByIdCustomerQueryResponse>(customer);
 
