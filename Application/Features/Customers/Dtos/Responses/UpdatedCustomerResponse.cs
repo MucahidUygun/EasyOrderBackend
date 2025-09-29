@@ -8,5 +8,5 @@ namespace Application.Features.Customers.Dtos.Responses;
 
 public class UpdatedCustomerResponse
 {
-    public string Name { get; set; }
+    public Guid Id { get; set; }
 }

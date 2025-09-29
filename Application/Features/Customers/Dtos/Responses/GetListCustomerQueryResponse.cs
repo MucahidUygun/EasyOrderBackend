@@ -8,8 +8,7 @@ namespace Application.Features.Customers.Dtos.Responses;
 
 public class GetListCustomerQueryResponse
 {
-    public string Name { get; set; }
     public string PhoneNumber { get; set; }
     public bool IsActive { get; set; }
-    public int Debit { get; set; }
+    public int AccoutBalance { get; set; }
 }

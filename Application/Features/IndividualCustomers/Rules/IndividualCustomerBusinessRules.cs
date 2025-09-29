@@ -1,4 +1,5 @@
-﻿using Application.Services.IndividualCustomers;
+﻿using Application.Features.IndividualCustomers.Constants;
+using Application.Services.IndividualCustomers;
 using Core.Application.Rules;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using System;
@@ -22,6 +23,6 @@ public class IndividualCustomerBusinessRules : BaseBusinessRules
     {
         bool customer = await _service.AnyAsync(p => p.Id == id, cancellationToken: cancellationToken);
         if (!customer)
-            throw new BusinessException("Böyle bir kullanıcı yok!");
+            throw new BusinessException(IndividualCustomersBusinessMessages.IndividualCustomerNotExists);
     }
 }

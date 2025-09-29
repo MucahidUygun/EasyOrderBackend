@@ -1,4 +1,5 @@
-﻿using Application.Services.Customers;
+﻿using Application.Features.Customers.Constants;
+using Application.Services.Customers;
 using Core.Application.Rules;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Domain.Entities;
@@ -23,6 +24,6 @@ public class CustomerBusinessRules : BaseBusinessRules
     {
         bool customer = await _service.AnyAsync(p=>p.Id==id,cancellationToken:cancellationToken);
         if (!customer)
-            throw new BusinessException("Böyle bir kullanıcı yok!");
+            throw new BusinessException(CustomersBusinessMessages.CustomerNotExists);
     }
 }

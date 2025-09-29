@@ -1,6 +1,8 @@
-﻿using Application.Features.Customers.Dtos.Requests;
+﻿using Application.Features.Customers.Constants;
+using Application.Features.Customers.Dtos.Requests;
 using Application.Features.Customers.Dtos.Responses;
 using AutoMapper;
+using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Persistence.Paging;
 using Core.Security.Hashing;
 using Domain.Entities;
@@ -84,7 +86,7 @@ public class CustomerManager : ICustomerService
             enableTracking,
             cancellationToken
             );
-        return customer;
+        return customer ?? throw new BusinessException(CustomersBusinessMessages.CustomerNotExists);
     }
 
     public Task<bool> AnyAsync(Expression<Func<Customer, bool>>? predicate = null, bool withDeleted = false, bool enableTracking = true, CancellationToken cancellationToken = default)

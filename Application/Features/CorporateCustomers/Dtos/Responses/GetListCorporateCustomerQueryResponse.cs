@@ -4,10 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Features.Customers.Dtos.Requests;
+namespace Application.Features.CorporateCustomers.Dtos.Responses;
 
-public class CreateCustomerRequest
+public class GetListCorporateCustomerQueryResponse
 {
+    public Guid Id { get; set; }
+    public string CompanyNaem { get; set; }
+    public string TaxNumber { get; set; }
+    public string TaxOffice { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
     public string PhoneNumber { get; set; }

@@ -6,6 +6,7 @@ using Application.Features.Customers.Dtos.Response;
 using Application.Services.Customers;
 using Core.Security.Hashing;
 using Application.Features.Customers.Rules;
+using Application.Services.CorporateCustomers;
 
 namespace Application.Features.Customers.Commands.Create;
 
@@ -20,7 +21,7 @@ public class CreateCustomerCommand:IRequest<CreatedCustomerResponse>
         public readonly ICustomerService _repository;
         public readonly CustomerBusinessRules _rules;
 
-        public CreateCustomerCommandHandler(IMapper mapper,ICustomerService repository,CustomerBusinessRules rules)
+        public CreateCustomerCommandHandler(IMapper mapper, ICustomerService repository,CustomerBusinessRules rules)
         {
             _rules = rules;
             _mapper = mapper;
@@ -40,7 +41,7 @@ public class CreateCustomerCommand:IRequest<CreatedCustomerResponse>
             customer.PasswordHash = passwordHash;
             customer.PasswordSalt = passwordSalt;
 
-            await _repository.AddAsync(customer);
+            await _repository.AddAsync(customer,cancellationToken);
 
             CreatedCustomerResponse response = _mapper.Map<CreatedCustomerResponse>(customer);
 

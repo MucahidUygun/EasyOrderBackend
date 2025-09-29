@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //Hata yönetiminin baþlangýçta ayaða kaldýrýlan yer
-app.UseCustomExceptionMiddleware();
+//app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

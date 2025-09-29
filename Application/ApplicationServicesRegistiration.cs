@@ -1,6 +1,8 @@
 ﻿using Application.Features.Customers.Rules;
+using Application.Services.CorporateCustomers;
 using Application.Services.Customers;
 using Application.Services.IndividualCustomers;
+using Core.Application.Rules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -21,9 +23,26 @@ public static class ApplicationServicesRegistiration
         {
             configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
+        services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));
         services.AddScoped<ICustomerService, CustomerManager>();
-        services.AddScoped<CustomerBusinessRules>();
         services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();
+        services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();
+        return services;
+    }
+
+    public static IServiceCollection AddSubClassesOfType(
+        this IServiceCollection services,
+        Assembly assembly,
+        Type type,
+        Func<IServiceCollection, Type, IServiceCollection>? addWithLifeCycle = null
+    )
+    {
+        var types = assembly.GetTypes().Where(t => t.IsSubclassOf(type) && type != t).ToList();
+        foreach (Type? item in types)
+            if (addWithLifeCycle == null)
+                services.AddScoped(item);
+            else
+                addWithLifeCycle(services, type);
         return services;
     }
 }

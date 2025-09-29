@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Features.Customers.Dtos.Responses;
+namespace Application.Features.CorporateCustomers.Dtos.Requests;
 
-public class DeletedCustomerResponse
+public class GetByIdCorporateCustomerRequest
 {
     public Guid Id { get; set; }
 }

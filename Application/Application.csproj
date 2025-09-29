@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Customers\Constants\" />
-    <Folder Include="Features\IndividualCustomers\Constants\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="MediatR" Version="13.0.0" />
@@ -23,6 +18,10 @@
 		<ProjectReference Include="..\Core\Core.csproj" />
 		<ProjectReference Include="..\Domain\Domain.csproj" />
 		<ProjectReference Include="..\Persistence\Persistence.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\CorporateCustomers\Queries\" />
 	</ItemGroup>
 
 </Project>
