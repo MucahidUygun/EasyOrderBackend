@@ -9,7 +9,7 @@ namespace Application.Features.CorporateCustomers.Dtos.Responses;
 public class GetListCorporateCustomerQueryResponse
 {
     public Guid Id { get; set; }
-    public string CompanyNaem { get; set; }
+    public string CompanyName { get; set; }
     public string TaxNumber { get; set; }
     public string TaxOffice { get; set; }
     public string Email { get; set; }

@@ -1,6 +1,7 @@
 using Persistence;
 using Application;
 using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
+using Core.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddSecurityServices();
 builder.Services.AddApplicationServices();
 // Baðlantý dizesini yapýlandýrma
 

@@ -2,6 +2,8 @@
 using Application.Features.CorporateCustomers.Commands.Delete;
 using Application.Features.CorporateCustomers.Commands.Update;
 using Application.Features.CorporateCustomers.Dtos.Responses;
+using Application.Features.CorporateCustomers.Queries;
+using Core.Persistence.Paging;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -27,6 +29,19 @@ namespace WebAPI.Controllers
         {
             DeletedCorporateCustomerResponse response = await Mediator.Send(request);
             return Ok(response);
+        }
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetById([FromQuery] GetByIdCorporateCustomerQuery request)
+        {
+            GetByIdCorporateCustomerQueryResponse response = await Mediator.Send(request);
+            return Ok(response);
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] PaginationParams paginationParams)
+        {
+            GetListCorporateCustomerQuery query = new (){pageRequest=paginationParams };
+            IPaginate<GetListCorporateCustomerQueryResponse> responses = await Mediator.Send(query);
+            return Ok(responses);
         }
     }
 }

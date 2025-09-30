@@ -32,6 +32,7 @@ public class UpdateCorporateCustomerCommand : IRequest<UpdatedCorporateCustomerR
 
         public async Task<UpdatedCorporateCustomerResponse> Handle(UpdateCorporateCustomerCommand request, CancellationToken cancellationToken)
         {
+            await _rules.CorporateCustomerIdShouldExistWhenSelected(request.updateCorporateCustomerRequest.Id);
             CorporateCustomer updatedCorporateCustomer = await _corporateCustomerService.UpdateAsync(request.updateCorporateCustomerRequest,cancellationToken);
 
             UpdatedCorporateCustomerResponse response = _mapper.Map<UpdatedCorporateCustomerResponse>(updatedCorporateCustomer);

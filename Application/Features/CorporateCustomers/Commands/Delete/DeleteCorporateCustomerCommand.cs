@@ -32,6 +32,7 @@ public class DeleteCorporateCustomerCommand : IRequest<DeletedCorporateCustomerR
 
         public async Task<DeletedCorporateCustomerResponse> Handle(DeleteCorporateCustomerCommand request, CancellationToken cancellationToken)
         {
+            await _rules.CorporateCustomerIdShouldExistWhenSelected(request.deleteCorporateCustomerRequest.Id);
             CorporateCustomer deletedCorporateCustomer = await _corporateCustomerService.DeleteAsync(request.deleteCorporateCustomerRequest, cancellationToken);
 
             DeletedCorporateCustomerResponse response = _mapper.Map<DeletedCorporateCustomerResponse>(deletedCorporateCustomer);

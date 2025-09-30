@@ -1,0 +1,15 @@
+﻿using Core.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Security.JWT;
+
+public interface ITokenHelper
+{
+    public AccessToken CreateToken(BaseUser user,IList<OperationClaim> operationClaims);
+
+    public RefreshToken CreateRefreshToken(BaseUser user,string ipAdress);
+}
