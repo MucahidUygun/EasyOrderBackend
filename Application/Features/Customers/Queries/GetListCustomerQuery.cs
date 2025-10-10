@@ -1,7 +1,6 @@
 ﻿using Application.Features.Customers.Dtos.Responses;
 using Application.Services.Customers;
 using AutoMapper;
-using Core.Application.Requests;
 using Core.Persistence.Paging;
 using Domain.Entities;
 using MediatR;

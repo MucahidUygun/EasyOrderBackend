@@ -5,7 +5,6 @@ using Application.Features.Customers.Dtos.Requests;
 using Application.Features.Customers.Dtos.Response;
 using Application.Features.Customers.Dtos.Responses;
 using Application.Features.Customers.Queries;
-using Core.Application.Requests;
 using Core.Persistence.Paging;
 using Microsoft.AspNetCore.Mvc;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities;
 
-public class BaseUser:BaseEntity<Guid>
+public abstract class BaseUser:BaseEntity<Guid>
 {
     public string? Email { get; set; }
     public byte[] PasswordSalt { get; set; }

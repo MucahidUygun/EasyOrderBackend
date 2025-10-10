@@ -27,7 +27,7 @@ public class TokenHelper : ITokenHelper
         _tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
     }
 
-    public AccessToken CreateToken(BaseUser user, IList<OperationClaim> operationClaims)
+    public AccessToken CreateToken(BaseUser user, IList<BaseClaim> operationClaims)
     {
         _accessTokenExpiration = DateTime.Now.AddMinutes(_tokenOptions.AccessTokenExpiration);
         SecurityKey securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey);
@@ -44,15 +44,15 @@ public class TokenHelper : ITokenHelper
         };
     }
 
-    public RefreshToken CreateRefreshToken(BaseUser user, string ipAdress)
+    public BaseRefreshToken CreateRefreshToken(BaseUser user, string ipAdress)
     {
-        RefreshToken refreshToken = new()
+        BaseRefreshToken refreshToken = new()
         {
             UserId = user.Id,
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
             Expires = DateTime.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
-            CreatedById = ipAdress,
+            CreatedByIp = ipAdress,
         };
 
         return refreshToken;
@@ -60,7 +60,7 @@ public class TokenHelper : ITokenHelper
 
     public JwtSecurityToken CreateJwtSecurityToken(TokenOptions tokenOptions, BaseUser user,
                                                    SigningCredentials signingCredentials,
-                                                   IList<OperationClaim> operationClaims)
+                                                   IList<BaseClaim> operationClaims)
     {
         JwtSecurityToken jwt = new(
             tokenOptions.Issuer,
@@ -73,7 +73,7 @@ public class TokenHelper : ITokenHelper
         return jwt;
     }
 
-    private IEnumerable<Claim> SetClaims(BaseUser user, IList<OperationClaim> operationClaims)
+    private IEnumerable<Claim> SetClaims(BaseUser user, IList<BaseClaim> operationClaims)
     {
         List<Claim> claims = new();
         claims.AddNameIdentifier(user.Id.ToString());

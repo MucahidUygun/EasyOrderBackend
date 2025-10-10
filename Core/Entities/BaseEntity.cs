@@ -6,11 +6,21 @@ using System.Threading.Tasks;
 
 namespace Core.Entities;
 
-public class BaseEntity<T>
+public abstract class BaseEntity<T>
 {
     public T Id { get; set; }
     public bool? IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set;}
     public DateTime? DeletedDate { get; set; }
+
+    public BaseEntity()
+    {
+        
+    }
+
+    public BaseEntity(T id)
+    {
+        Id = id;
+    }
 }

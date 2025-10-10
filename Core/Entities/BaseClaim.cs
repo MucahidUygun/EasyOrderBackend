@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Core.Entities;
 
-public class OperationClaim : BaseEntity<int>
+public abstract class BaseClaim : BaseEntity<int>
 {
     public string Name { get; set; }
 
-    public OperationClaim()
+    public BaseClaim()
     {
         
     }
-    public OperationClaim(string name)
+    public BaseClaim(string name)
     {
         Name = name;
     }
