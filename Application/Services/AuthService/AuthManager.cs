@@ -15,12 +15,13 @@ public class AuthManager : IAuthService
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenHelper _tokenHelper;
-    //private readonly IUserClaimRepository;
+    private readonly IUserOperationClaimRepository _userOperationClaimRepository;
     private readonly TokenOptions _tokenOptions;
     private readonly IMapper _mapper;
 
-    public AuthManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper, TokenOptions tokenOptions, IMapper mapper, IConfiguration configuration)
+    public AuthManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper, TokenOptions tokenOptions, IMapper mapper, IConfiguration configuration,IUserOperationClaimRepository userOperationClaimRepository)
     {
+        _userOperationClaimRepository = userOperationClaimRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
         _mapper = mapper;

@@ -152,6 +152,26 @@ where TContext : DbContext
         return entity;
     }
 
+    public async Task<TEntity?> GetLastAsync(
+       Expression<Func<TEntity, object>> orderBySelector,
+       bool withDeleted = false,
+       bool enableTracking = true,
+       CancellationToken cancellationToken = default)
+        {
+            IQueryable<TEntity> queryable = Context.Set<TEntity>();
+
+            if (!enableTracking)
+                queryable = queryable.AsNoTracking();
+
+            if (!withDeleted)
+                queryable = queryable.Where(x => x.DeletedDate == null);
+
+            return await queryable
+                .OrderByDescending(orderBySelector)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+
     public async Task<ICollection<TEntity>> DeleteRangeAsync(ICollection<TEntity> entities, bool permanent = false, CancellationToken cancellationToken = default)
     {
         if (!permanent)
@@ -168,5 +188,6 @@ where TContext : DbContext
         await Context.SaveChangesAsync(cancellationToken);
         return entities;
     }
+   
 }
 

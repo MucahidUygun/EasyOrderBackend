@@ -27,16 +27,16 @@ public class OperationClaimConfiguration : IEntityTypeConfiguration<OperationCla
 
         builder.HasBaseType((Type)null!);
     }
-    //public static int AdminId => 1;
-    //private IEnumerable<OperationClaim> _seeds
-    //{
-    //    get
-    //    {
-    //        yield return new() { Id = AdminId, Name = "Admin" };
+//    public static int AdminId => 1;
+//    private IEnumerable<OperationClaim> _seeds
+//    {
+//        get
+//        {
+//            yield return new() { Id = AdminId, Name = "Admin",CreatedDate=DateTime.Now };
 
-    //        IEnumerable<OperationClaim> featureOperationClaims = getFeatureOperationClaims(AdminId);
-    //        foreach (OperationClaim claim in featureOperationClaims)
-    //            yield return claim;
-    //    }
-    //}
+//            //IEnumerable<OperationClaim> featureOperationClaims = getFeatureOperationClaims(AdminId);
+//            //foreach (OperationClaim claim in featureOperationClaims)
+//            //    yield return claim;
+//        }
+//    }
 }

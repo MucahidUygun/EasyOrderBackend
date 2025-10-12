@@ -2,6 +2,7 @@
 using Application.Services.CorporateCustomers;
 using Application.Services.Customers;
 using Application.Services.IndividualCustomers;
+using Application.Services.OperationClaims;
 using Core.Application.Rules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,7 @@ public static class ApplicationServicesRegistiration
         services.AddScoped<ICustomerService, CustomerManager>();
         services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();
         services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();
+        services.AddScoped<IOperationClaimService, OperationClaimManager>();
         return services;
     }
 

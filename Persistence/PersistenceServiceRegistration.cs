@@ -24,6 +24,8 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IIndividualCustomerRespository, IndividualCustomerRepostitory>();
         services.AddScoped<ICorporateCustomerRepository, CorporateCustomerRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IUserOperationClaimRepository,UserOperationClaimRepository>();
+        services.AddScoped<IOperationClaimRepository, OperationClaimRepository>();
 
         return services;
     }

@@ -50,4 +50,10 @@ public interface IAsyncRepository<TEntity, TId> where TEntity : BaseEntity<TId>
     // Delete
     Task<TEntity> DeleteAsync(TEntity entity, bool permanent = false, CancellationToken cancellationToken = default);
     Task<ICollection<TEntity>> DeleteRangeAsync(ICollection<TEntity> entities, bool permanent = false, CancellationToken cancellationToken = default);
+    //En Sonda ki veriyi Getirir
+    public Task<TEntity?> GetLastAsync(
+       Expression<Func<TEntity, object>> orderBySelector,
+       bool withDeleted = false,
+       bool enableTracking = true,
+       CancellationToken cancellationToken = default);
 }

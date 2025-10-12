@@ -38,5 +38,5 @@ public class UserOperationClaimConfiguratiion : IEntityTypeConfiguration<UserOpe
     //            OperationClaimId = OperationClaimConfiguration.AdminId
     //        };
     //    }
-    //}
+   // }
 }

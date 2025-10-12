@@ -20,4 +20,12 @@
 		<ProjectReference Include="..\Persistence\Persistence.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Features\OperationClaims\Commands\Delete\" />
+	  <Folder Include="Features\OperationClaims\Commands\Update\" />
+	  <Folder Include="Features\OperationClaims\Constants\" />
+	  <Folder Include="Features\OperationClaims\Rules\" />
+	  <Folder Include="Features\OperationClaims\Queries\" />
+	</ItemGroup>
+
 </Project>
