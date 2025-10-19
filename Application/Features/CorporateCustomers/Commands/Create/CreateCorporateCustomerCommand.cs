@@ -3,6 +3,7 @@ using Application.Features.CorporateCustomers.Dtos.Responses;
 using Application.Features.CorporateCustomers.Rules;
 using Application.Services.CorporateCustomers;
 using AutoMapper;
+using Core.Application.Pipelines.Authorization;
 using Core.Security.Hashing;
 using Domain.Entities;
 using MediatR;
@@ -14,9 +15,11 @@ using System.Threading.Tasks;
 
 namespace Application.Features.CorporateCustomers.Commands.Create;
 
-public class CreateCorporateCustomerCommand : IRequest<CreatedCorporateCustomerResponse>
+public class CreateCorporateCustomerCommand : IRequest<CreatedCorporateCustomerResponse>,ISecuredRequest
 {
     public CreateCorporateCustomerRequest corporateCustomerRequest { get; set; }
+
+    public string[] Claims => ["Admin"];
 
     public class CreateCorporateCustomerHandler : IRequestHandler<CreateCorporateCustomerCommand, CreatedCorporateCustomerResponse>
     {

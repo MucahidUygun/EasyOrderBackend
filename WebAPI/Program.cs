@@ -1,7 +1,11 @@
-using Persistence;
+ï»¿using Persistence;
 using Application;
-using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
 using Core.Security;
+using Core.Security.JWT;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Core.Security.Encryption;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +15,33 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddPersistenceServices(builder.Configuration);
+const string tokenOptionsConfigurationSection = "TokenOptions";
+TokenOptions tokenOptions =
+    builder.Configuration.GetSection(tokenOptionsConfigurationSection).Get<TokenOptions>()
+    ?? throw new InvalidOperationException($"\"{tokenOptionsConfigurationSection}\" section cannot found in configuration.");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = tokenOptions.Issuer,
+            ValidAudience = tokenOptions.Audience,
+            IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey),
+
+            RoleClaimType = "role",  // ðŸ”¹ Ã–nemli: .NET'e "role" claimâ€™inin rol olduÄŸunu sÃ¶ylÃ¼yoruz
+            NameClaimType = JwtRegisteredClaimNames.Email
+        };
+    });
+
+
+
 builder.Services.AddSecurityServices();
 builder.Services.AddApplicationServices();
-// Baðlantý dizesini yapýlandýrma
+// BaÄŸlantÄ± dizesini yapÄ±landÄ±rma
 
 var app = builder.Build();
 
@@ -23,11 +51,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-//Hata yönetiminin baþlangýçta ayaða kaldýrýlan yer
+//Hata yÃ¶netiminin baÅŸlangÄ±Ã§ta ayaÄŸa kaldÄ±rÄ±lan yer
 //app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseAuthentication();
+
 
 app.MapControllers();
 

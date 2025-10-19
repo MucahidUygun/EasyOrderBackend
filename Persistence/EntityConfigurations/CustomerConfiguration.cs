@@ -45,9 +45,5 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .IsRequired()
             .HasColumnType("varbinary(max)");
 
-        builder.Property(c => c.IsActive)
-            .HasColumnType("bit")
-            .HasColumnName("isActive");
-
     }
 }

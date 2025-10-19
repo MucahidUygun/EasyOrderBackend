@@ -21,6 +21,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(a => a.PhoneNumber).HasColumnName("PhoneNumber");
         builder.Property(a => a.Email).HasColumnName("Email");
         builder.Property(a => a.Adress).HasColumnName("Adress");
+        builder.Property(a => a.IsActive).HasColumnName("IsActive");
         builder.Property(a => a.PasswordHash).HasColumnName("PasswordHash");
         builder.Property(a => a.PasswordSalt).HasColumnName("PasswordSalt");
         builder.Property(a => a.CreatedDate).HasColumnName("CreatedDate").IsRequired();

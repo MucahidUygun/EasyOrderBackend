@@ -17,6 +17,7 @@ public class OperationClaimConfiguration : IEntityTypeConfiguration<OperationCla
 
         builder.Property(p => p.Id).HasColumnName("Id").IsRequired();
         builder.Property(p => p.Name).HasColumnName("Name");
+        builder.Property(a => a.IsActive).HasColumnName("IsActive");
         builder.Property(a => a.CreatedDate).HasColumnName("CreatedDate").IsRequired();
         builder.Property(a => a.UpdatedDate).HasColumnName("UpdatedDate");
         builder.Property(a => a.DeletedDate).HasColumnName("DeletedDate");

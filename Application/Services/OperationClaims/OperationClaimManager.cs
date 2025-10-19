@@ -24,6 +24,7 @@ public class OperationClaimManager : IOperationClaimService
     public async Task<OperationClaim> AddAsync(OperationClaim operationClaim, CancellationToken cancellationToken = default)
     {
         OperationClaim? lastClaim = await _operationClaimRepository.GetLastAsync(x=>x.Id);
+        lastClaim!.IsActive = true;
         await _operationClaimRepository.AddAsync(operationClaim);
 
         return operationClaim;

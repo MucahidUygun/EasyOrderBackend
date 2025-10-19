@@ -21,6 +21,10 @@ where TContext : DbContext
     {
         Context = context;
     }
+    public IQueryable<TEntity> Query()
+    {
+        return Context.Set<TEntity>();
+    }
 
     public async Task<TEntity?> GetAsync(
         Expression<Func<TEntity, bool>> predicate,

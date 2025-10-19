@@ -10,4 +10,5 @@ namespace Persistence.Services;
 
 public interface IUserOperationClaimRepository:IAsyncRepository<UserOperationClaim,Guid>
 {
+    Task<IList<OperationClaim>> GetOperationClaimsByUserIdAsync(Guid userId);
 }
