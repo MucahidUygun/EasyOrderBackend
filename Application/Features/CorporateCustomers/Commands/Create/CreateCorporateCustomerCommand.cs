@@ -19,7 +19,7 @@ public class CreateCorporateCustomerCommand : IRequest<CreatedCorporateCustomerR
 {
     public CreateCorporateCustomerRequest corporateCustomerRequest { get; set; }
 
-    public string[] Claims => ["Admin"];
+    public string[] Claims => ["Admin", "Satış Temsilcisi"];
 
     public class CreateCorporateCustomerHandler : IRequestHandler<CreateCorporateCustomerCommand, CreatedCorporateCustomerResponse>
     {

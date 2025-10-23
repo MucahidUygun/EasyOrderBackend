@@ -65,6 +65,7 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
             UserOperationClaim[] userCliams =
             {
                 new() { UserId = customer.Id, OperationClaimId = 1,IsActive=true },
+                new() { UserId = customer.Id, OperationClaimId = 3,IsActive=true },
             };
 
             foreach (var claim in userCliams)

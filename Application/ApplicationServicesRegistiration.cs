@@ -4,6 +4,7 @@ using Application.Services.CorporateCustomers;
 using Application.Services.Customers;
 using Application.Services.IndividualCustomers;
 using Application.Services.OperationClaims;
+using Core.Application.Pipelines.Authorization;
 using Core.Application.Rules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,9 @@ public static class ApplicationServicesRegistiration
         services.AddMediatR(configuration =>
         {
             configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            //Claim kontrolünün sağlanması için altta ki satır eklendi!
+            configuration.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
+
         });
         services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));
         services.AddScoped<ICustomerService, CustomerManager>();

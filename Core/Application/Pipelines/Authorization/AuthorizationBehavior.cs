@@ -20,21 +20,26 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        List<string>? roleClaims = _httpContextAccessor.HttpContext.User.ClaimRoles();
+        //Kullanıcı authenticated olduğunu kontrol ediyor
+        if (!_httpContextAccessor.HttpContext.User.Claims.Any())
+            throw new AuthorizationException("You are not authenticated.");
 
-        if (roleClaims == null)
-            throw new AuthorizationException("Claim not found!");
+        if (request.Claims.Any())
+        {   //Tokendan kullanıcı role bilgileri alınıyor ICollection burada ki kritik yerlerden!
+            ICollection<string>? userRoleClaims = _httpContextAccessor.HttpContext.User.ClaimRoles() ?? [];
+            //Burada tokendan alınınan role bilgileri ile request(classının veya yetki gereken yer) ile roller eşleşme durumuna bakılıyor.
+            bool isNotMatchedAUserRoleClaimWithRequestRoles = userRoleClaims
+                .FirstOrDefault(userRoleClaim =>
+                    userRoleClaim == "Admin" || request.Claims.Contains(userRoleClaim)
+                )
+                == null;
+            if (isNotMatchedAUserRoleClaimWithRequestRoles)
+                throw new AuthorizationException("You are not authorized.");
+        }
 
-        bool isNotMatchedARoleClaimWithRequestRoles =
-            string.IsNullOrEmpty(roleClaims.FirstOrDefault(
-                roleClaim => request.Claims.Any(role => role == roleClaim)
-            ));
-
-        if (isNotMatchedARoleClaimWithRequestRoles)
-            throw new AuthorizationException("You are not authorization");
-
-        return next();
+        TResponse response = await next();
+        return response;
     }
 }

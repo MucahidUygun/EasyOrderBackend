@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Core.Security.Encryption;
+using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddPersistenceServices(builder.Configuration);
 const string tokenOptionsConfigurationSection = "TokenOptions";
 TokenOptions tokenOptions =
@@ -30,12 +33,41 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = tokenOptions.Issuer,
             ValidAudience = tokenOptions.Audience,
-            IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey),
-
-            RoleClaimType = "role",  // 🔹 Önemli: .NET'e "role" claim’inin rol olduğunu söylüyoruz
-            NameClaimType = JwtRegisteredClaimNames.Email
+            RoleClaimType = "Role",  // 🔹 Önemli: .NET'e "role" claim’inin rol olduğunu söylüyoruz
+            NameClaimType = JwtRegisteredClaimNames.Email,
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha512Signature },//Hangi şifreleme algoritması kullandığını jtw' ye belirleniyor(Güvenlik için default olarakda budur.) 
+            ClockSkew = TimeSpan.Zero,//Zaman sapmasının önlemek için
+            IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+            
         };
     });
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Please enter token in this format: Bearer {your token}",
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
 
 
 
@@ -54,10 +86,8 @@ if (app.Environment.IsDevelopment())
 //Hata yönetiminin başlangıçta ayağa kaldırılan yer
 //app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 app.UseAuthentication();
-
+app.UseAuthorization();
 
 app.MapControllers();
 

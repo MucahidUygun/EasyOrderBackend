@@ -21,7 +21,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Features\Auth\Rules\" />
 	  <Folder Include="Features\OperationClaims\Commands\Delete\" />
 	  <Folder Include="Features\OperationClaims\Commands\Update\" />
 	  <Folder Include="Features\OperationClaims\Constants\" />

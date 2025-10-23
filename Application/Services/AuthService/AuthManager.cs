@@ -2,12 +2,14 @@
 using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Persistence.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,15 +22,18 @@ public class AuthManager : IAuthService
     private readonly IUserOperationClaimRepository _userOperationClaimRepository;
     private readonly TokenOptions _tokenOptions;
     private readonly IMapper _mapper;
+    private readonly IUserRepository _userRepository;
 
     public AuthManager(
     IRefreshTokenRepository refreshTokenRepository,
     ITokenHelper tokenHelper,
     IMapper mapper,
     IConfiguration configuration,
-    IUserOperationClaimRepository userOperationClaimRepository
+    IUserOperationClaimRepository userOperationClaimRepository,
+    IUserRepository userRepository
 )
     {
+        _userRepository = userRepository;
         _userOperationClaimRepository = userOperationClaimRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
@@ -78,6 +83,18 @@ public class AuthManager : IAuthService
     {
         RefreshToken? token = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken);  
         return token;
+    }
+
+    public async Task<User?> GetUserAsync(Expression<Func<User, bool>> predicate, Func<IQueryable<User>, IIncludableQueryable<User, object>>? include = null, bool withDeleted = false, bool enableTracking = true, CancellationToken cancellationToken = default)
+    {
+        return await _userRepository.GetAsync
+            (
+            predicate:predicate,
+            include:include,
+            withDeleted:withDeleted,
+            enableTracking:enableTracking,
+            cancellationToken:cancellationToken
+            );
     }
 
     public async Task RevokeDescendantRefreshTokens(RefreshToken refreshToken, string ipAddress, string reason)

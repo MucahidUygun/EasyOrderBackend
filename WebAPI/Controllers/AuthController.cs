@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Commands.Registers.RegisterCustomer;
+﻿using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Domain.Entities;
@@ -20,6 +21,16 @@ namespace WebAPI.Controllers
             return Created(uri: "", response.AccessToken);
 
         }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginCommandRequest loginCommandRequest)
+        {
+            LoginCommand loginCommand = new() { LoginCustomerCommandRequest = loginCommandRequest , IpAdress = getIpAddress()};
+            LoggedResponse response = await Mediator.Send(loginCommand);
+            setRefreshTokenToCookie(response.RefreshToken);
+            return Ok(response.AccessToken);
+        }
+
         private void setRefreshTokenToCookie(RefreshToken refreshToken)
         {
             CookieOptions cookieOptions = new() { HttpOnly = true, Expires = DateTime.UtcNow.AddDays(7) };
