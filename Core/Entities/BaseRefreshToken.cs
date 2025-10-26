@@ -14,9 +14,9 @@ public class BaseRefreshToken : BaseEntity<Guid>
     public DateTime Created { get; set; }
     public string CreatedByIp { get; set; }
     public DateTime? Revoked { get; set; }
-    public string RevokedByIp { get; set; }
-    public string ReplacedByToken { get; set; }
-    public string ReasonRevoked { get; set; }
+    public string? RevokedByIp { get; set; }
+    public string? ReplacedByToken { get; set; }
+    public string? ReasonRevoked { get; set; }
 
     public virtual BaseUser User { get; set; }
 

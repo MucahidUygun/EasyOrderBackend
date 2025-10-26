@@ -109,6 +109,7 @@ where TContext : DbContext
 
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
+        entity.IsActive = true;
         entity.CreatedDate = DateTime.UtcNow;
         await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
         await Context.SaveChangesAsync(cancellationToken);
@@ -145,6 +146,7 @@ where TContext : DbContext
         if (!permanent)
         {
             entity.DeletedDate = DateTime.UtcNow;
+            entity.IsActive = false;
             Context.Set<TEntity>().Update(entity);
         }
         else
@@ -181,7 +183,11 @@ where TContext : DbContext
         if (!permanent)
         {
             foreach (var entity in entities)
+            {
                 entity.DeletedDate = DateTime.UtcNow;
+                entity.IsActive = false;
+                
+            }
             Context.Set<TEntity>().UpdateRange(entities);
         }
         else

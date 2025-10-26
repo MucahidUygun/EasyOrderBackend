@@ -6,6 +6,8 @@ using Application.Services.IndividualCustomers;
 using Application.Services.OperationClaims;
 using Core.Application.Pipelines.Authorization;
 using Core.Application.Rules;
+using Core.Entities;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -35,6 +37,7 @@ public static class ApplicationServicesRegistiration
         services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();
         services.AddScoped<IOperationClaimService, OperationClaimManager>();
         services.AddScoped<IAuthService, AuthManager>();
+        services.AddScoped<BaseRefreshToken, RefreshToken>();
         return services;
     }
 

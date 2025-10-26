@@ -24,9 +24,13 @@ namespace WebAPI.Controllers
             UpdatedCorporateCustomerResponse response = await Mediator.Send(request);
             return Ok(response);
         }
-        [HttpDelete]
-        public async Task<IActionResult> Delete([FromBody] DeleteCorporateCustomerCommand request)
+        [HttpDelete("Id")]
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
         {
+            DeleteCorporateCustomerCommand request = new()
+            {
+                deleteCorporateCustomerRequest = new() { Id = id }
+            };
             DeletedCorporateCustomerResponse response = await Mediator.Send(request);
             return Ok(response);
         }
