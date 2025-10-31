@@ -10,5 +10,5 @@ namespace Persistence.Services;
 
 public interface IRefreshTokenRepository : IAsyncRepository<RefreshToken,Guid>
 {
-    Task<List<RefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTTL);
+    Task<List<RefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTTL,string ipAdress);
 }

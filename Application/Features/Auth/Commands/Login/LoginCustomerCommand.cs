@@ -54,7 +54,7 @@ public class LoginCommand : IRequest<LoggedResponse>
 
             AccessToken accessToken = await _authService.CreateAccessToken(user);
             RefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
-            await _authService.DeleteOldRefreshToken(user.Id);
+            await _authService.DeleteOldRefreshToken(user.Id,request.IpAdress);
             RefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
             loggedResponse.AccessToken = accessToken;

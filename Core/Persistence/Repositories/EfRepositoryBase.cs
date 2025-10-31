@@ -87,6 +87,31 @@ where TContext : DbContext
         };
     }
 
+    public async Task<List<TEntity?>> GetListNotPaginateAsync(Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null, int index = 0, int size = 10, bool withDeleted = false, bool enableTracking = true, CancellationToken cancellationToken = default)
+    {
+        IQueryable<TEntity> queryable = Context.Set<TEntity>();
+
+        if (!enableTracking)
+            queryable = queryable.AsNoTracking();
+
+        if (include != null)
+            queryable = include(queryable);
+
+        if (!withDeleted)
+            queryable = queryable.Where(x => x.DeletedDate == null);
+
+        if (predicate != null)
+            queryable = queryable.Where(predicate);
+
+        if (orderBy != null)
+            queryable = orderBy(queryable);
+
+        var totalItems = await queryable.CountAsync(cancellationToken);
+        var items = await queryable.Skip(index * size).Take(size).ToListAsync(cancellationToken);
+
+        return items;
+    }
+
     public async Task<bool> AnyAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         bool withDeleted = false,
@@ -198,6 +223,7 @@ where TContext : DbContext
         await Context.SaveChangesAsync(cancellationToken);
         return entities;
     }
-   
+
+
 }
 

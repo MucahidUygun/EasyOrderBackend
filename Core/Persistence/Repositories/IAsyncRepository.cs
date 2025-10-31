@@ -32,6 +32,17 @@ public interface IAsyncRepository<TEntity, TId> where TEntity : BaseEntity<TId>
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
 
+    // Get List
+    Task<List<TEntity?>> GetListNotPaginateAsync(
+        Expression<Func<TEntity, bool>>? predicate = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+        int index = 0,
+        int size = 10,
+        bool withDeleted = false,
+        bool enableTracking = true,
+        CancellationToken cancellationToken = default);
+
     // Any
     Task<bool> AnyAsync(
         Expression<Func<TEntity, bool>>? predicate = null,

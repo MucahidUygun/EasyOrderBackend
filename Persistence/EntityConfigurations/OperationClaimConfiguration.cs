@@ -24,20 +24,34 @@ public class OperationClaimConfiguration : IEntityTypeConfiguration<OperationCla
 
         builder.HasQueryFilter(a => !a.DeletedDate.HasValue);
 
-        //builder.HasData(_seeds);
+        builder.HasData(_seeds);
 
         builder.HasBaseType((Type)null!);
     }
-//    public static int AdminId => 1;
-//    private IEnumerable<OperationClaim> _seeds
-//    {
-//        get
-//        {
-//            yield return new() { Id = AdminId, Name = "Admin",CreatedDate=DateTime.Now };
+    public static int AdminId => 100;
+    private IEnumerable<OperationClaim> _seeds
+    {
+        get
+        {
+            yield return new() { Id = AdminId, Name = "Admin", CreatedDate = new DateTime(2025, 10, 31) };
 
-//            //IEnumerable<OperationClaim> featureOperationClaims = getFeatureOperationClaims(AdminId);
-//            //foreach (OperationClaim claim in featureOperationClaims)
-//            //    yield return claim;
-//        }
-//    }
+            IEnumerable<OperationClaim> featureOperationClaims = getFeatureOperationClaims(AdminId);
+            foreach (OperationClaim claim in featureOperationClaims)
+                yield return claim;
+        }
+    }
+    private IEnumerable<OperationClaim> getFeatureOperationClaims(int initialId)
+    {
+        int lastId = initialId;
+        List<OperationClaim> featureOperationClaims = new();
+
+        #region Auth
+        featureOperationClaims.AddRange(
+            [
+                new() { Id = ++lastId, Name = "test.Admim", CreatedDate = new DateTime(2025,10,31) }
+            ]
+        );
+        #endregion
+        return featureOperationClaims;
+    }
 }

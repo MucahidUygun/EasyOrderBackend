@@ -16,7 +16,7 @@ public class RefreshTokenRepository : EfRepositoryBase<RefreshToken, Guid, BaseD
     public RefreshTokenRepository(BaseDbContext context) : base(context)
     {
     }
-    public async Task<List<RefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTtl)
+    public async Task<List<RefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTtl, string ipAdress)
     {
         List<RefreshToken> tokens = await Query()
             .AsNoTracking()
@@ -24,6 +24,7 @@ public class RefreshTokenRepository : EfRepositoryBase<RefreshToken, Guid, BaseD
                 r.UserId == userId
                 && r.Revoked == null
                 && r.Expires >= DateTime.UtcNow
+                && r.CreatedByIp == ipAdress
             )
             .ToListAsync();
 

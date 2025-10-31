@@ -9,5 +9,5 @@ namespace Domain.Entities;
 
 public class Brand : BaseEntity<Guid>
 {
-    public string BrandName { get; set; }
+    public string BrandName { get; set; } 
 }

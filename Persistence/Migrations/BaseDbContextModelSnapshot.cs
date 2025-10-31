@@ -55,6 +55,20 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("OperationClaim", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 100,
+                            CreatedDate = new DateTime(2025, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 101,
+                            CreatedDate = new DateTime(2025, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "test.Admim"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>

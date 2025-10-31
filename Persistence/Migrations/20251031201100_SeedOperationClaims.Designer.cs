@@ -12,8 +12,8 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(BaseDbContext))]
-    [Migration("20251019193359_IsActiveDesign")]
-    partial class IsActiveDesign
+    [Migration("20251031201100_SeedOperationClaims")]
+    partial class SeedOperationClaims
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,6 +58,20 @@ namespace Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("OperationClaim", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 100,
+                            CreatedDate = new DateTime(2025, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 101,
+                            CreatedDate = new DateTime(2025, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "test.Admim"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
@@ -91,12 +105,10 @@ namespace Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ReasonRevoked")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ReasonRevoked");
 
                     b.Property<string>("ReplacedByToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ReplacedByToken");
 
@@ -105,7 +117,6 @@ namespace Persistence.Migrations
                         .HasColumnName("RevokedDate");
 
                     b.Property<string>("RevokedByIp")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("RevokedByIp");
 

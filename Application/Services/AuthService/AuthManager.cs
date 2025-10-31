@@ -73,9 +73,9 @@ public class AuthManager : IAuthService
         return Task.FromResult(refreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(Guid id)
+    public async Task DeleteOldRefreshToken(Guid id,string ipAdress)
     {
-        List<RefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId:id,refreshTokenTTL:_tokenOptions.RefreshTokenTTL);
+        List<RefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId:id,refreshTokenTTL:_tokenOptions.RefreshTokenTTL,ipAdress);
         await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
     }
 
