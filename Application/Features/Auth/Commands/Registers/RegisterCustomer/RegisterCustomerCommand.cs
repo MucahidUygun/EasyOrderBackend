@@ -3,6 +3,7 @@ using Application.Features.Auth.Dtos.Responses;
 using Application.Services.AuthService;
 using Application.Services.Customers;
 using AutoMapper;
+using Core.Entities;
 using Core.Security.Hashing;
 using Core.Security.JWT;
 using Domain.Entities;
@@ -75,7 +76,7 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
 
             AccessToken accessToken = await _authServise.CreateAccessToken(customer);
 
-            RefreshToken refreshToken = await _authServise.CreateRefreshToken(customer,request.IpAdress);
+            BaseRefreshToken refreshToken = await _authServise.CreateRefreshToken(customer,request.IpAdress);
 
             RegisteredResponse registeredResponse = new() { AccessToken = accessToken, RefreshToken = refreshToken };
 

@@ -3,6 +3,7 @@ using Application.Features.Auth.Dtos.Responses;
 using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
 using AutoMapper;
+using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
 using MediatR;
@@ -53,9 +54,9 @@ public class LoginCommand : IRequest<LoggedResponse>
             await _authBusinessRules.UserPasswordShouldBeMatch(user,request.LoginCustomerCommandRequest.Password);
 
             AccessToken accessToken = await _authService.CreateAccessToken(user);
-            RefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
+            BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
             await _authService.DeleteOldRefreshToken(user.Id,request.IpAdress);
-            RefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
+            BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
             loggedResponse.AccessToken = accessToken;
             loggedResponse.RefreshToken = addedRefreshToken;

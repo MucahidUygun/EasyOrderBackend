@@ -2,6 +2,7 @@
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
+using Core.Entities;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace WebAPI.Controllers
             return Ok(response.AccessToken);
         }
 
-        private void setRefreshTokenToCookie(RefreshToken refreshToken)
+        private void setRefreshTokenToCookie(BaseRefreshToken refreshToken)
         {
             CookieOptions cookieOptions = new() { HttpOnly = true, Expires = DateTime.UtcNow.AddDays(7) };
             Response.Cookies.Append(key: "refreshToken", refreshToken.Token, cookieOptions);

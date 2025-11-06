@@ -37,7 +37,7 @@ public static class ApplicationServicesRegistiration
         services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();
         services.AddScoped<IOperationClaimService, OperationClaimManager>();
         services.AddScoped<IAuthService, AuthManager>();
-        services.AddScoped<BaseRefreshToken, RefreshToken>();
+        //services.AddScoped<BaseRefreshToken, RefreshToken>();
         return services;
     }
 

@@ -14,7 +14,7 @@ public class MappingProfie  : Profile
 {
     public MappingProfie()
     {
-        CreateMap<BaseRefreshToken,RefreshToken>().ReverseMap();
+        //CreateMap<BaseRefreshToken,RefreshToken>().ReverseMap();
         CreateMap<Customer,RegisterCustomerCommandRequest>().ReverseMap();
     }
 }

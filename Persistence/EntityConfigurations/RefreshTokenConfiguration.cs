@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Core.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Persistence.EntityConfigurations;
 
-public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<BaseRefreshToken>
 {
-    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    public void Configure(EntityTypeBuilder<BaseRefreshToken> builder)
     {
         builder.ToTable("RefreshToken").HasKey(p=>p.Id);
         builder.Property(rt => rt.Id).HasColumnName("Id").IsRequired();

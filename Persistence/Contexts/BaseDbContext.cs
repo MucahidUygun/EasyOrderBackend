@@ -19,7 +19,7 @@ public class BaseDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<IndividualCustomer> IndividualCustomers { get; set; }
     public DbSet<CorporateCustomer> CorporateCustomers { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<BaseRefreshToken> RefreshTokens { get; set; }
     public DbSet<OperationClaim> OperationClaims { get; set; }
     public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
 

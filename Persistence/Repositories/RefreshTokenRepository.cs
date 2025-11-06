@@ -1,4 +1,6 @@
-﻿using Core.Persistence.Repositories;
+﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Entities;
+using Core.Persistence.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -11,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace Persistence.Repositories;
 
-public class RefreshTokenRepository : EfRepositoryBase<RefreshToken, Guid, BaseDbContext>,IRefreshTokenRepository
+public class RefreshTokenRepository :  EfRepositoryBase<BaseRefreshToken, Guid, BaseDbContext>, IRefreshTokenRepository
 {
     public RefreshTokenRepository(BaseDbContext context) : base(context)
     {
     }
-    public async Task<List<RefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTtl, string ipAdress)
+    public async Task<List<BaseRefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTtl, string ipAdress)
     {
-        List<RefreshToken> tokens = await Query()
+        List<BaseRefreshToken> tokens = await Query()
             .AsNoTracking()
             .Where(r =>
                 r.UserId == userId
@@ -29,5 +31,17 @@ public class RefreshTokenRepository : EfRepositoryBase<RefreshToken, Guid, BaseD
             .ToListAsync();
 
         return tokens;
+    }
+
+    public async Task<bool> IsValidRefreshToken(BaseRefreshToken refreshToken, CancellationToken cancellationToken = default)
+    {
+        var tokenEntity = await Query()
+                .FirstOrDefaultAsync(x => x.Token == refreshToken.Token, cancellationToken);
+
+        if (tokenEntity is null) return false;
+        if (tokenEntity.Revoked <= DateTime.Now) return false;
+        if (tokenEntity.Expires < DateTime.UtcNow) return false;
+
+        return true;
     }
 }

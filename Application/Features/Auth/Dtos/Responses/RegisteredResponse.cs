@@ -1,4 +1,5 @@
-﻿using Core.Security.JWT;
+﻿using Core.Entities;
+using Core.Security.JWT;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Application.Features.Auth.Dtos.Responses;
 public class RegisteredResponse
 {
     public AccessToken AccessToken { get; set; }
-    public Domain.Entities.RefreshToken RefreshToken { get; set; }
+    public BaseRefreshToken RefreshToken { get; set; }
 
     public RegisteredResponse()
     {
@@ -18,7 +19,7 @@ public class RegisteredResponse
         RefreshToken = null!;
     }
 
-    public RegisteredResponse(AccessToken accessToken,RefreshToken refreshToken)
+    public RegisteredResponse(AccessToken accessToken, BaseRefreshToken refreshToken)
     {
         AccessToken = accessToken;
         RefreshToken = refreshToken;

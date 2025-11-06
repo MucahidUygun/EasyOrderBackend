@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Core.Application.Contracts.Security.Interfaces;
 using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
@@ -45,11 +46,11 @@ public class AuthManager : IAuthService
     }
 
 
-    public async Task<RefreshToken> AddRefreshToken(RefreshToken refreshToken)
+    public async Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken baseRefreshToken)
     {
-        RefreshToken addedRefreshToken = await _refreshTokenRepository.AddAsync(refreshToken); 
+        BaseRefreshToken addedBaseRefreshToken = await _refreshTokenRepository.AddAsync(baseRefreshToken); 
 
-        return addedRefreshToken;
+        return addedBaseRefreshToken;
     }
 
     public async Task<AccessToken> CreateAccessToken(User user)
@@ -64,24 +65,24 @@ public class AuthManager : IAuthService
         return accessToken;
     }
 
-    public Task<RefreshToken> CreateRefreshToken(User user, string ipAdress)
+    public Task<BaseRefreshToken> CreateRefreshToken(User user, string ipAdress)
     {
         BaseRefreshToken coreRefreshToken = _tokenHelper.CreateRefreshToken(user,ipAdress);
 
-        RefreshToken refreshToken = _mapper.Map<RefreshToken>(coreRefreshToken);
+        BaseRefreshToken refreshToken = _mapper.Map<BaseRefreshToken>(coreRefreshToken);
 
         return Task.FromResult(refreshToken);
     }
 
     public async Task DeleteOldRefreshToken(Guid id,string ipAdress)
     {
-        List<RefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId:id,refreshTokenTTL:_tokenOptions.RefreshTokenTTL,ipAdress);
+        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId:id,refreshTokenTTL:_tokenOptions.RefreshTokenTTL,ipAdress);
         await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenByToken(string refreshToken)
+    public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken)
     {
-        RefreshToken? token = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken);  
+        BaseRefreshToken? token = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken);  
         return token;
     }
 
@@ -97,9 +98,9 @@ public class AuthManager : IAuthService
             );
     }
 
-    public async Task RevokeDescendantRefreshTokens(RefreshToken refreshToken, string ipAddress, string reason)
+    public async Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason)
     {
-        RefreshToken? childToken = await _refreshTokenRepository.GetAsync(predicate: r =>
+        BaseRefreshToken? childToken = await _refreshTokenRepository.GetAsync(predicate: r =>
             r.Token == refreshToken.ReplacedByToken
         );
 
@@ -109,7 +110,7 @@ public class AuthManager : IAuthService
             await RevokeDescendantRefreshTokens(refreshToken: childToken!, ipAddress, reason);
     }
 
-    public async Task RevokeRefreshToken(RefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null)
+    public async Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null)
     {
         token.Revoked = DateTime.UtcNow;
         token.RevokedByIp = ipAddress;
@@ -118,10 +119,10 @@ public class AuthManager : IAuthService
         await _refreshTokenRepository.UpdateAsync(token);
     }
 
-    public async Task<RefreshToken> RotateRefreshToken(User user, RefreshToken refreshToken, string ipAddress)
+    public async Task<BaseRefreshToken> RotateRefreshToken(User user, BaseRefreshToken refreshToken, string ipAddress)
     {
         BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(user,ipAddress);
-        RefreshToken newRefreshToken = _mapper.Map<RefreshToken>(baseRefreshToken);
+        BaseRefreshToken newRefreshToken = _mapper.Map<BaseRefreshToken>(baseRefreshToken);
         await RevokeRefreshToken(refreshToken,ipAddress,reason: "Replaced by new token", newRefreshToken.Token);
 
         return newRefreshToken;

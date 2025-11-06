@@ -1,4 +1,5 @@
-﻿using Core.Security.JWT;
+﻿using Core.Entities;
+using Core.Security.JWT;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
@@ -13,15 +14,15 @@ namespace Application.Services.AuthService;
 public interface IAuthService
 {
     public Task<AccessToken> CreateAccessToken(User user);
-    public Task<RefreshToken> CreateRefreshToken(User user,string ipAdress);
-    public Task<RefreshToken?> GetRefreshTokenByToken(string refreshToken);
-    public Task<RefreshToken> AddRefreshToken(RefreshToken refreshToken);
+    public Task<BaseRefreshToken> CreateRefreshToken(User user,string ipAdress);
+    public Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken);
+    public Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken);
     public Task DeleteOldRefreshToken(Guid id,string ipAdress);
-    public Task RevokeDescendantRefreshTokens(RefreshToken refreshToken, string ipAddress, string reason);
+    public Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason);
 
-    public Task RevokeRefreshToken(RefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null);
+    public Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null);
 
-    public Task<RefreshToken> RotateRefreshToken(User user, RefreshToken refreshToken, string ipAddress);
+    public Task<BaseRefreshToken> RotateRefreshToken(User user, BaseRefreshToken refreshToken, string ipAddress);
 
     public Task<User> GetUserAsync(
         Expression<Func<User, bool>> predicate,

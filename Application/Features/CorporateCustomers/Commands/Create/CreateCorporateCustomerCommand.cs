@@ -3,6 +3,7 @@ using Application.Features.CorporateCustomers.Dtos.Responses;
 using Application.Features.CorporateCustomers.Rules;
 using Application.Services.CorporateCustomers;
 using AutoMapper;
+using Core.Application.Contracts.Security.Interfaces;
 using Core.Application.Pipelines.Authorization;
 using Core.Security.Hashing;
 using Domain.Entities;
