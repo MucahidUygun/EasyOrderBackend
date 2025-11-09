@@ -25,4 +25,8 @@ public static class ClaimsPrincipalExtensions
     {
         return claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
+    public static string? GetEmail(this ClaimsPrincipal claimsPrincipal)
+    {
+        return claimsPrincipal?.GetEmail();
+    }
 }

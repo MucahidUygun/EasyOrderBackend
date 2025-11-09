@@ -1,6 +1,7 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
 using Core.Entities;
 using Core.Persistence.Repositories;
+using Core.Security.Enums;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
@@ -33,15 +34,14 @@ public class RefreshTokenRepository :  EfRepositoryBase<BaseRefreshToken, Guid, 
         return tokens;
     }
 
-    public async Task<bool> IsValidRefreshToken(BaseRefreshToken refreshToken, CancellationToken cancellationToken = default)
+    public async Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken, CancellationToken cancellationToken = default)
     {
-        var tokenEntity = await Query()
-                .FirstOrDefaultAsync(x => x.Token == refreshToken.Token, cancellationToken);
+        var tokenEntity = await GetAsync(x=>x.Token ==refreshToken,withDeleted:true,cancellationToken:cancellationToken);
+       
+        if (tokenEntity is null) return RefreshTokenValidType.NotFound;
+        if (tokenEntity.Revoked <= DateTime.Now) return RefreshTokenValidType.Expired;
+        if (tokenEntity.Expires < DateTime.UtcNow) return RefreshTokenValidType.Expired;
 
-        if (tokenEntity is null) return false;
-        if (tokenEntity.Revoked <= DateTime.Now) return false;
-        if (tokenEntity.Expires < DateTime.UtcNow) return false;
-
-        return true;
+        return RefreshTokenValidType.Active;
     }
 }
