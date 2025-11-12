@@ -34,9 +34,9 @@ public class RefreshTokenRepository :  EfRepositoryBase<BaseRefreshToken, Guid, 
         return tokens;
     }
 
-    public async Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken, string createdByIp, CancellationToken cancellationToken = default)
     {
-        var tokenEntity = await GetAsync(x=>x.Token ==refreshToken,withDeleted:true,cancellationToken:cancellationToken);
+        var tokenEntity = await GetAsync(x=>x.Token ==refreshToken && x.CreatedByIp==createdByIp,withDeleted:true,cancellationToken:cancellationToken);
        
         if (tokenEntity is null) return RefreshTokenValidType.NotFound;
         if (tokenEntity.Revoked <= DateTime.Now) return RefreshTokenValidType.Expired;

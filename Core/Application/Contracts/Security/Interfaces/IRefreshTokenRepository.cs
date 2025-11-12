@@ -12,5 +12,5 @@ namespace Core.Application.Contracts.Security.Interfaces;
 public interface IRefreshTokenRepository : IAsyncRepository<BaseRefreshToken, Guid>
 {
     Task<List<BaseRefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTTL, string ipAdress);
-    Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken,CancellationToken cancellationToken=default);
+    Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken,string createdByIp, CancellationToken cancellationToken=default);
 }
