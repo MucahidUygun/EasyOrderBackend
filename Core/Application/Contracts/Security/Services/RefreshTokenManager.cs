@@ -1,5 +1,6 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
 using Core.Entities;
+using Core.Security.Enums;
 using Core.Security.JWT;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -40,9 +41,9 @@ public class RefreshTokenManager : IRefreshTokenService
         return await Task.FromResult(coreRefreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(Guid id, string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user, string ipAdress)
     {
-        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId: id, refreshTokenTTL: _tokenOptions.RefreshTokenTTL, ipAdress);
+        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user, ipAdress);
         await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
     }
 
@@ -51,6 +52,17 @@ public class RefreshTokenManager : IRefreshTokenService
         BaseRefreshToken? token = await _refreshTokenRepository.GetAsync(p => p.Token == refreshToken && p.CreatedByIp == ipAdress);
         return token;
     }
+
+    public async Task<RefreshTokenValidType> GetRefreshTokenValidType(string refreshToken, string createdByIp,BaseUser user)
+    {
+        BaseRefreshToken? baseRefreshToken = await GetRefreshTokenByToken(refreshToken,createdByIp);
+
+        if (baseRefreshToken is null) return RefreshTokenValidType.NotFound;
+        if (baseRefreshToken.ExpiresDate >= DateTime.UtcNow) return RefreshTokenValidType.Active;
+        if (baseRefreshToken.RevokedDate <= DateTime.Now || baseRefreshToken.Token is null) return RefreshTokenValidType.Expired;
+        else return RefreshTokenValidType.Deleted;
+    }
+
     //RefreshToken zincirinde ki aktif olan hariç hepsinin iptali 
     public async Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason)
     {
@@ -58,7 +70,7 @@ public class RefreshTokenManager : IRefreshTokenService
             r.Token == refreshToken.ReplacedByToken
         );
 
-        if (childToken?.Revoked != null && childToken.Expires <= DateTime.UtcNow)
+        if (childToken?.RevokedDate != null && childToken.ExpiresDate <= DateTime.UtcNow)
             await RevokeRefreshToken(childToken, ipAddress, reason);
         else
             await RevokeDescendantRefreshTokens(refreshToken: childToken!, ipAddress, reason);
@@ -66,14 +78,14 @@ public class RefreshTokenManager : IRefreshTokenService
     // RefreshTokenın iptali
     public async Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null)
     {
-        token.Revoked = DateTime.UtcNow;
+        token.RevokedDate = DateTime.UtcNow;
         token.RevokedByIp = ipAddress;
         token.ReasonRevoked = reason;
         token.ReplacedByToken = replacedByToken;
         token.IsActive = false;
         await _refreshTokenRepository.UpdateAsync(token);
     }
-    //Üretilen RefreshTokenı eski RefreshTokena bağlamak için yapılır
+    //Üretilen RefreshTokenı eski RefreshTokena bağlama
     public async Task<BaseRefreshToken> RotateRefreshToken(BaseUser user, string refreshToken, string ipAddress)
     {
         BaseRefreshToken? hasRefreshToken = await GetRefreshTokenByToken(refreshToken,ipAddress);

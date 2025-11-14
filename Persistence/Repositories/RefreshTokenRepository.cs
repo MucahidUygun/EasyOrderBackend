@@ -19,29 +19,18 @@ public class RefreshTokenRepository :  EfRepositoryBase<BaseRefreshToken, Guid, 
     public RefreshTokenRepository(BaseDbContext context) : base(context)
     {
     }
-    public async Task<List<BaseRefreshToken>> GetOldRefreshTokensAsync(Guid userId, int refreshTokenTtl, string ipAdress)
+    public async Task<List<BaseRefreshToken>> GetOldRefreshTokensAsync(BaseUser user, string ipAdress)
     {
         List<BaseRefreshToken> tokens = await Query()
             .AsNoTracking()
             .Where(r =>
-                r.UserId == userId
-                && r.Revoked == null
-                && r.Expires >= DateTime.UtcNow
+                r.UserId == user.Id
+                && r.RevokedDate == null
+                && r.ExpiresDate >= DateTime.UtcNow
                 && r.CreatedByIp == ipAdress
             )
             .ToListAsync();
 
         return tokens;
-    }
-
-    public async Task<RefreshTokenValidType> IsValidRefreshToken(string refreshToken, string createdByIp, CancellationToken cancellationToken = default)
-    {
-        var tokenEntity = await GetAsync(x=>x.Token ==refreshToken && x.CreatedByIp==createdByIp,withDeleted:true,cancellationToken:cancellationToken);
-       
-        if (tokenEntity is null) return RefreshTokenValidType.NotFound;
-        if (tokenEntity.Revoked <= DateTime.Now) return RefreshTokenValidType.Expired;
-        if (tokenEntity.Expires < DateTime.UtcNow) return RefreshTokenValidType.Expired;
-
-        return RefreshTokenValidType.Active;
     }
 }

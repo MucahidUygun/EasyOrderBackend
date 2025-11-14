@@ -21,7 +21,6 @@ public class AuthManager : IAuthService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenHelper _tokenHelper;
     private readonly IUserOperationClaimRepository _userOperationClaimRepository;
-    private readonly TokenOptions _tokenOptions;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
 
@@ -29,7 +28,6 @@ public class AuthManager : IAuthService
     IRefreshTokenRepository refreshTokenRepository,
     ITokenHelper tokenHelper,
     IMapper mapper,
-    IConfiguration configuration,
     IUserOperationClaimRepository userOperationClaimRepository,
     IUserRepository userRepository
 )
@@ -39,10 +37,6 @@ public class AuthManager : IAuthService
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
         _mapper = mapper;
-        const string tokenOptionsConfigurationSection = "TokenOptions";
-        _tokenOptions =
-            configuration.GetSection(tokenOptionsConfigurationSection).Get<TokenOptions>()
-            ?? throw new NullReferenceException($"\"{tokenOptionsConfigurationSection}\" section cannot found in configuration");
     }
 
 
@@ -74,9 +68,9 @@ public class AuthManager : IAuthService
         return Task.FromResult(refreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(Guid id,string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user,string ipAdress)
     {
-        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(userId:id,refreshTokenTTL:_tokenOptions.RefreshTokenTTL,ipAdress);
+        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user,ipAdress);
         await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
     }
 
@@ -104,7 +98,7 @@ public class AuthManager : IAuthService
             r.Token == refreshToken.ReplacedByToken
         );
 
-        if (childToken?.Revoked != null && childToken.Expires <= DateTime.UtcNow)
+        if (childToken?.RevokedDate != null && childToken.ExpiresDate <= DateTime.UtcNow)
             await RevokeRefreshToken(childToken, ipAddress, reason);
         else
             await RevokeDescendantRefreshTokens(refreshToken: childToken!, ipAddress, reason);
@@ -112,7 +106,7 @@ public class AuthManager : IAuthService
 
     public async Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null)
     {
-        token.Revoked = DateTime.UtcNow;
+        token.RevokedDate = DateTime.UtcNow;
         token.RevokedByIp = ipAddress;
         token.ReasonRevoked = reason;
         token.ReplacedByToken = replacedByToken;

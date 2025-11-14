@@ -10,10 +10,9 @@ public class BaseRefreshToken : BaseEntity<Guid>
 {
     public Guid UserId { get; set; }
     public string Token { get; set; }
-    public DateTime? Expires { get; set; }
-    public DateTime Created { get; set; }
+    public DateTime? ExpiresDate { get; set; }
     public string CreatedByIp { get; set; }
-    public DateTime? Revoked { get; set; }
+    public DateTime? RevokedDate { get; set; }
     public string? RevokedByIp { get; set; }
     public string? ReplacedByToken { get; set; }
     public string? ReasonRevoked { get; set; }
@@ -25,14 +24,13 @@ public class BaseRefreshToken : BaseEntity<Guid>
 
     }
 
-    public BaseRefreshToken(Guid userId, string token, DateTime expires, DateTime created, string createdByIp, DateTime revoked, string revokedByIp, string replacedByToken, string reasonRevoked, BaseUser user)
+    public BaseRefreshToken(Guid userId, string token, DateTime expires,string createdByIp, DateTime revoked, string revokedByIp, string replacedByToken, string reasonRevoked, BaseUser user)
     {
         UserId = userId;
         Token = token;
-        Expires = expires;
-        Created = created;
+        ExpiresDate = expires;
         CreatedByIp = createdByIp;
-        Revoked = revoked;
+        RevokedDate = revoked;
         RevokedByIp = revokedByIp;
         ReplacedByToken = replacedByToken;
         ReasonRevoked = reasonRevoked;

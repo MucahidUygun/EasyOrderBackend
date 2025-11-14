@@ -23,15 +23,13 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     where TRequest : IRequest<TResponse>, ISecuredRequest
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenHelper _tokenHelper;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly HttpContext _httpContext;
-    public AuthorizationBehavior(IHttpContextAccessor httpContextAccessor, IRefreshTokenRepository refreshTokenValidator, ITokenHelper tokenHelper,
+    public AuthorizationBehavior(IHttpContextAccessor httpContextAccessor, ITokenHelper tokenHelper,
     IRefreshTokenService refreshTokenService)
     {
         _tokenHelper = tokenHelper;
-        _refreshTokenRepository = refreshTokenValidator;
         _httpContextAccessor = httpContextAccessor;
         _refreshTokenService = refreshTokenService;
         _httpContext = _httpContextAccessor.HttpContext;
@@ -57,6 +55,8 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
             ? _httpContext!.Request.Headers["X-Forwarded-For"].ToString()
             : _httpContext!.Connection.RemoteIpAddress?.MapToIPv4().ToString();
 
+            if (createdByIp is null) throw new AuthorizationException("You are not authorized.");
+
             BaseUser user = new()
             {
                 Id = id,
@@ -72,7 +72,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
                 })
                 .ToList();
 
-            RefreshTokenValidType validType = await _refreshTokenRepository.IsValidRefreshToken(refreshTokenFromCookie, createdByIp);
+            RefreshTokenValidType validType = await _refreshTokenService.GetRefreshTokenValidType(refreshTokenFromCookie,createdByIp!,user);
 
             switch (validType)
             {
@@ -82,14 +82,15 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
                     SetAccessTokenAndRefreshTokenFromRequest(user,baseClaims,accessToken,createdRefreshToken);
                     break;
                 case RefreshTokenValidType.Expired:
-
-                    break;
+                    BaseRefreshToken? revokeRefreshToken = await _refreshTokenService.GetRefreshTokenByToken(refreshTokenFromCookie, createdByIp);
+                    await _refreshTokenService.RevokeRefreshToken(revokeRefreshToken!,createdByIp,reason:"Token expired.");
+                    throw new AuthorizationException("Please log in");
                 case RefreshTokenValidType.Deleted:
+                    BaseRefreshToken? revokeAllRefreshToken = await _refreshTokenService.GetRefreshTokenByToken(refreshTokenFromCookie, createdByIp);
+                    await _refreshTokenService.RevokeDescendantRefreshTokens(revokeAllRefreshToken!,createdByIp, "Token reuse detected");
                     break;
                 case RefreshTokenValidType.NotFound:
                     throw new AuthorizationException("You are not authorized.");
-                default:
-                    break;
             }
         }
         if (request.Claims.Any())
@@ -135,7 +136,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
             HttpOnly = true,           // JS erişemez
             Secure = true,             // sadece HTTPS üzerinden
             SameSite = SameSiteMode.Strict, // CSRF'ye karşı koruma
-            Expires = refreshToken.Expires
+            Expires = refreshToken.ExpiresDate
         };
         _httpContext.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
     }

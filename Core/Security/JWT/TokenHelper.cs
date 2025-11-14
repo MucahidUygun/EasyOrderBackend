@@ -50,8 +50,7 @@ public class TokenHelper : ITokenHelper
         {
             UserId = user.Id,
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            Expires = DateTime.UtcNow.AddDays(7),
-            Created = DateTime.UtcNow,
+            ExpiresDate = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
             CreatedByIp = ipAdress,
         };
 

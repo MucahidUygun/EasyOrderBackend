@@ -18,9 +18,9 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<BaseRefreshTok
         builder.Property(rt => rt.Id).HasColumnName("Id").IsRequired();
         builder.Property(rt => rt.UserId).HasColumnName("UserId").IsRequired();
         builder.Property(rt => rt.Token).HasColumnName("Token").IsRequired();
-        builder.Property(rt => rt.Expires).HasColumnName("ExpiresDate").IsRequired();
+        builder.Property(rt => rt.ExpiresDate).HasColumnName("ExpiresDate").IsRequired();
         builder.Property(rt => rt.CreatedByIp).HasColumnName("CreatedByIp").IsRequired();
-        builder.Property(rt => rt.Revoked).HasColumnName("RevokedDate").IsRequired(false);
+        builder.Property(rt => rt.RevokedDate).HasColumnName("RevokedDate").IsRequired(false);
         builder.Property(rt => rt.RevokedByIp).HasColumnName("RevokedByIp").IsRequired(false);
         builder.Property(rt => rt.ReplacedByToken).HasColumnName("ReplacedByToken").IsRequired(false);
         builder.Property(rt => rt.ReasonRevoked).HasColumnName("ReasonRevoked").IsRequired(false);

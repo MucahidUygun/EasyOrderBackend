@@ -17,7 +17,7 @@ public interface IAuthService
     public Task<BaseRefreshToken> CreateRefreshToken(User user,string ipAdress);
     public Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken);
     public Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken);
-    public Task DeleteOldRefreshToken(Guid id,string ipAdress);
+    public Task DeleteOldRefreshToken(BaseUser user,string ipAdress);
     public Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason);
 
     public Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null);
