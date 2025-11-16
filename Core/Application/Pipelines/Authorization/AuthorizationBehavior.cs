@@ -30,15 +30,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         _httpContext = _httpContextAccessor.HttpContext;
     }
 
-    /*
-     * 15/11/2025 görev
-    RefreshBehavior oluştur. ----
-    RefreshBehavior' u ServiceRegistiration' a ekle -----
-    AuthorizationBehavior' da accessTokenın boş olduğu kısımda flag koy ki RefreshBehaviora gitsin ----
-    Jwt için incantce oluşturma Dipendicy injection yap
-    cookiden set ve get işlemlerini behaviordan alarak daha temiz kod yap
-     */
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         //Kullanıcı authenticated olduğunu kontrol ediyor
