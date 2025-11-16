@@ -17,6 +17,9 @@ public static class SecurityServiceRegistration
     {
         services.AddScoped<ITokenHelper, TokenHelper>();
         services.AddScoped<IRefreshTokenService, RefreshTokenManager>();
+        services.AddScoped<IHttpService,HttpManager>();
+        services.AddSingleton<JwtSecurityTokenHandler>();
+        services.AddScoped<IJwtService, JwtManager>();
         return services;
     }
 }

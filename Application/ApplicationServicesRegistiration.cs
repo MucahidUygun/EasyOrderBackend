@@ -29,6 +29,7 @@ public static class ApplicationServicesRegistiration
             configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             //Claim kontrolünün sağlanması için altta ki satır eklendi!
             configuration.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
+            configuration.AddOpenBehavior(typeof(RefreshBehavior<,>));
 
         });
         services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));

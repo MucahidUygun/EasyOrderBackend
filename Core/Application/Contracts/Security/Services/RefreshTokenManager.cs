@@ -34,6 +34,12 @@ public class RefreshTokenManager : IRefreshTokenService
         return addedBaseRefreshToken;
     }
 
+    public AccessToken CreateAccessToken(BaseUser user, List<BaseClaim> baseClaims)
+    {
+        AccessToken newAccessToken = _tokenHelper.CreateToken(user: user, baseClaims);
+        return newAccessToken;
+    }
+
     public async Task<BaseRefreshToken> CreateRefreshToken(BaseUser user, string ipAdress)
     {
         BaseRefreshToken coreRefreshToken = _tokenHelper.CreateRefreshToken(user, ipAdress);

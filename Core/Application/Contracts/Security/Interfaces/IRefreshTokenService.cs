@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Security.Enums;
+using Core.Security.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Core.Application.Contracts.Security.Interfaces;
 
 public interface IRefreshTokenService
 {
+    public AccessToken CreateAccessToken(BaseUser user, List<BaseClaim> baseClaims);
     public Task<BaseRefreshToken> CreateRefreshToken(BaseUser user, string ipAdress);
     public Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken,string ipAdress);
     public Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken);
