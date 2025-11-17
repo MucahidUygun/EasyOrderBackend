@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Constants;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -27,6 +28,6 @@ public static class ClaimExtensions
 
     public static void AddRoles(this ICollection<Claim> claims, string[] roles)
     {
-        roles.ToList().ForEach(role => claims.Add(new Claim("Role", role)));
+        roles.ToList().ForEach(role => claims.Add(new Claim(CoreMessages.CliamRole, role)));
     }
 }

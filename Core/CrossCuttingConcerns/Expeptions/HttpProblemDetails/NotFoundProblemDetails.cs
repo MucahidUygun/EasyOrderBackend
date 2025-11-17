@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ public class NotFoundProblemDetails : ProblemDetails
 {
     public NotFoundProblemDetails(string detail)
     {
-        Title = "Not found";
+        Title = CoreMessages.NotFoundError;
         Detail = detail;
         Status = StatusCodes.Status404NotFound;
         Type = "https://example.com/probs/notfound";

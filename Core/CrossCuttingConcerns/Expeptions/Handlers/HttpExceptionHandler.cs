@@ -30,6 +30,13 @@ public class HttpExceptionHandler : ExceptionHandler
         return WriteAsJsonAsync(Response, details);
     }
 
+    protected override Task HandleExpetion(NotFoundException notFoundException)
+    {
+        Response.StatusCode = StatusCodes.Status404NotFound;
+        var details = new NotFoundProblemDetails(notFoundException.Message);
+        return WriteAsJsonAsync(Response,details);
+    }
+
     protected override Task HandleException(ValidationException validationException)
     {
         Response.StatusCode = StatusCodes.Status400BadRequest;

@@ -1,4 +1,5 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Constants;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Security.Enums;
@@ -35,7 +36,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         //Kullanıcı authenticated olduğunu kontrol ediyor
         if (!_httpContext.User.Claims.Any())
         {   //Kullanıcı authenticated olmadığı için refreshBehavior devreye girmesi için flag(işaret) bırakılıyor
-            _httpContext.Items["TriggerRefreshBehavior"] = true;
+            _httpContext.Items[CoreMessages.FlagForRefreshBehavior] = true;
             return await next();
         }
         if (request.Claims.Any())
@@ -44,11 +45,11 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
             //Burada tokendan alınınan role bilgileri ile request(classının veya yetki gereken yer) ile roller eşleşme durumuna bakılıyor.
             bool isNotMatchedAUserRoleClaimWithRequestRoles = userRoleClaims
                 .FirstOrDefault(userRoleClaim =>
-                    userRoleClaim == "Admin" || request.Claims.Contains(userRoleClaim)
+                    userRoleClaim == CoreMessages.Admin || request.Claims.Contains(userRoleClaim)
                 )
                 == null;
             if (isNotMatchedAUserRoleClaimWithRequestRoles)
-                throw new AuthorizationException("You are not authorized.");
+                throw new AuthorizationException(CoreMessages.NotAuthorized);
 
 
         }

@@ -24,7 +24,7 @@ public interface IAuthService
 
     public Task<BaseRefreshToken> RotateRefreshToken(User user, BaseRefreshToken refreshToken, string ipAddress);
 
-    public Task<User> GetUserAsync(
+    public Task<User?> GetUserAsync(
         Expression<Func<User, bool>> predicate,
         Func<IQueryable<User>, IIncludableQueryable<User, object>>? include = null,
         bool withDeleted = false,

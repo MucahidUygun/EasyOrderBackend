@@ -1,4 +1,5 @@
-﻿using Core.CrossCuttingConcerns.Expeptions.Types;
+﻿using Core.Constants;
+using Core.CrossCuttingConcerns.Expeptions.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,8 +15,8 @@ public class ValidationProblemDetails : ProblemDetails
 
     public ValidationProblemDetails(IEnumerable<ValidationExceptionModel> errors)
     {
-        Title = "Validation error(s)";
-        Detail = "One or more validation errors occurred.";
+        Title = CoreMessages.ValidationsError;
+        Detail = CoreMessages.MoreErrorOccurred;
         Errors = errors;
         Status = StatusCodes.Status400BadRequest;
         Type = "https://example.com/probs/validation";

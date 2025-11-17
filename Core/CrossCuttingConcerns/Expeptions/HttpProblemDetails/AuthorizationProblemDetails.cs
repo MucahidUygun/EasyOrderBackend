@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ public class AuthorizationProblemDetails : ProblemDetails
 {
     public AuthorizationProblemDetails(string detail)
     {
-        Title = "Authorization error";
+        Title = CoreMessages.AuthError;
         Detail = detail;
         Status = StatusCodes.Status401Unauthorized;
         Type = "https://example.com/probs/authorization";

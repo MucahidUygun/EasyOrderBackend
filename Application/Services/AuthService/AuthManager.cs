@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Application.Contracts.Security.Interfaces;
+using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
@@ -84,11 +85,11 @@ public class AuthManager : IAuthService
     {
         return await _userRepository.GetAsync
             (
-            predicate:predicate,
-            include:include,
-            withDeleted:withDeleted,
-            enableTracking:enableTracking,
-            cancellationToken:cancellationToken
+            predicate: predicate,
+            include: include,
+            withDeleted: withDeleted,
+            enableTracking: enableTracking,
+            cancellationToken: cancellationToken
             );
     }
 

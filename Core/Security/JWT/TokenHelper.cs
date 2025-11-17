@@ -18,7 +18,7 @@ namespace Core.Security.JWT;
 public class TokenHelper : ITokenHelper
 {
     public IConfiguration Configuration { get;}
-    private readonly TokenOptions _tokenOptions;
+    private readonly TokenOptions? _tokenOptions;
     private DateTime _accessTokenExpiration;
 
     public TokenHelper(IConfiguration configuration)
@@ -29,7 +29,7 @@ public class TokenHelper : ITokenHelper
 
     public AccessToken CreateToken(BaseUser user, IList<BaseClaim> operationClaims)
     {
-        _accessTokenExpiration = DateTime.Now.AddSeconds(_tokenOptions.AccessTokenExpiration);
+        _accessTokenExpiration = DateTime.Now.AddSeconds(_tokenOptions!.AccessTokenExpiration);
         SecurityKey securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey);
         SigningCredentials signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(securityKey);
         JwtSecurityToken jwt = CreateJwtSecurityToken(_tokenOptions, user, signingCredentials, operationClaims);
@@ -50,7 +50,7 @@ public class TokenHelper : ITokenHelper
         {
             UserId = user.Id,
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            ExpiresDate = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
+            ExpiresDate = DateTime.UtcNow.AddDays(_tokenOptions!.RefreshTokenTTL),
             CreatedByIp = ipAdress,
         };
 

@@ -14,7 +14,6 @@ public abstract class BaseUserOperationClaim<TUserId,TClaimId>:BaseEntity<Guid>
 
     public virtual BaseUser User { get; set; }
     public virtual BaseClaim OperationClaim { get; set; }
-
     public BaseUserOperationClaim()
     {
         

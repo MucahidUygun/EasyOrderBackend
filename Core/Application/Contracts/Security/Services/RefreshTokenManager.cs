@@ -1,4 +1,5 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Constants;
 using Core.Entities;
 using Core.Security.Enums;
 using Core.Security.JWT;
@@ -15,16 +16,11 @@ public class RefreshTokenManager : IRefreshTokenService
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenHelper _tokenHelper;
-    private readonly TokenOptions _tokenOptions;
 
-    public RefreshTokenManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper,IConfiguration configuration)
+    public RefreshTokenManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper)
     {
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
-        const string tokenOptionsConfigurationSection = "TokenOptions";
-        _tokenOptions =
-            configuration.GetSection(tokenOptionsConfigurationSection).Get<TokenOptions>()
-            ?? throw new NullReferenceException($"\"{tokenOptionsConfigurationSection}\" section cannot found in configuration");
     }
 
     public async Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken)
@@ -96,7 +92,7 @@ public class RefreshTokenManager : IRefreshTokenService
     {
         BaseRefreshToken? hasRefreshToken = await GetRefreshTokenByToken(refreshToken,ipAddress);
         BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(user, ipAddress);
-        await RevokeRefreshToken(hasRefreshToken!, ipAddress, reason: "Replaced by new token", baseRefreshToken.Token);
+        await RevokeRefreshToken(hasRefreshToken!, ipAddress, reason: CoreMessages.ReplacedByNewToken, baseRefreshToken.Token);
         await AddRefreshToken(baseRefreshToken);
 
         return baseRefreshToken;

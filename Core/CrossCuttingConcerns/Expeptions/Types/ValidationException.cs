@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using Core.Constants;
 
 namespace Core.CrossCuttingConcerns.Expeptions.Types;
 public class ValidationException : Exception
 {
     public IEnumerable<ValidationExceptionModel> Errors { get; }
 
-    public ValidationException(IEnumerable<ValidationExceptionModel> errors) : base("Validation error(s)")
+    public ValidationException(IEnumerable<ValidationExceptionModel> errors) : base(CoreMessages.ValidationsError)
     {
         Errors = errors;
     }

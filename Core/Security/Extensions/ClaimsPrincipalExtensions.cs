@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Constants;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,7 +19,7 @@ public static class ClaimsPrincipalExtensions
     public static ICollection<string>? ClaimRoles(this ClaimsPrincipal claimsPrincipal)
     {
         //Hangi cliam türüne göre filtreleniyor
-        return claimsPrincipal?.GetClaims("Role");
+        return claimsPrincipal?.GetClaims(CoreMessages.CliamRole);
     }
 
     public static string? GetIdClaim(this ClaimsPrincipal claimsPrincipal)

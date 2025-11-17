@@ -1,15 +1,10 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Constants;
 using Core.Entities;
 using Core.Security.JWT;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Application.Contracts.Security.Services;
 
@@ -52,7 +47,7 @@ public class HttpManager : IHttpService
                 {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? "")
-                }.Concat(baseClaims.Select(c => new Claim("Role", c.Name))),
+                }.Concat(baseClaims.Select(c => new Claim(CoreMessages.CliamRole, c.Name))),
                 "Custom");
         ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 

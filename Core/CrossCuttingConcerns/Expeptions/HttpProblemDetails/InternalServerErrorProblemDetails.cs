@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Core.Constants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ public class InternalServerErrorProblemDetails : ProblemDetails
 {
     public InternalServerErrorProblemDetails(string detail)
     {
-        Title = "Internal server error";
+        Title = CoreMessages.InternalServerError;
         Detail = detail;
         Status = StatusCodes.Status500InternalServerError;
         Type = "https://example.com/probs/internal";

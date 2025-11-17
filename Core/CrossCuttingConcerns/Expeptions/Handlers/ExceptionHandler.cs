@@ -18,6 +18,8 @@ public abstract class ExceptionHandler
 
         if (exception is AuthorizationException authorizationException)
             return HandleException(authorizationException);
+        if(exception is NotFoundException notFoundException)
+            return HandleException(notFoundException);
 
         return HandleException(exception);
     }
@@ -25,5 +27,6 @@ public abstract class ExceptionHandler
     protected abstract Task HandleException(BusinessException businessException);
     protected abstract Task HandleException(ValidationException validationException);
     protected abstract Task HandleException(AuthorizationException authorizationException);
+    protected abstract Task HandleExpetion(NotFoundException notFoundException);
     protected abstract Task HandleException(Exception exception);
 }

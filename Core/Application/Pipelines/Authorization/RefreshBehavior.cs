@@ -1,4 +1,5 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Constants;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Security.Enums;
@@ -36,22 +37,22 @@ public class RefreshBehavior<TRequest, TResponse>
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var shouldRun = _context.Items["TriggerRefreshBehavior"];
+        var shouldRun = _context.Items[CoreMessages.FlagForRefreshBehavior];
         //RefreshBheavior' a girmesi için flag(işaret) var mı?
         if (shouldRun is not bool triggred|| !triggred )
             return await next();
 
         string? oldAccessToken = _httpService.GetAccessTokenFromHeaders();
         if (oldAccessToken is null)
-            throw new AuthorizationException("You are not authhorized.");
+            throw new AuthorizationException(CoreMessages.NotAuthorized);
 
         string? refreshTokenFromCookie = _httpService.GetRefreshTokenFromCookie();
         if (refreshTokenFromCookie is null)
-            throw new AuthorizationException("You are not authhorized.");
+            throw new AuthorizationException(CoreMessages.NotAuthorized);
 
         string? createdByIp = _httpService.GetByIpAdressFromHeaders(); 
         if (createdByIp is null) 
-            throw new AuthorizationException("You are not authorized.");
+            throw new AuthorizationException(CoreMessages.NotAuthorized);
 
         Guid id = Guid.Parse(input: _jwtService.GetIdFromOldAccesToken(oldAccessToken));
 
@@ -61,7 +62,7 @@ public class RefreshBehavior<TRequest, TResponse>
             Email = _jwtService.GetEmailFromOldAccesToken(oldAccessToken),
 
         };
-        List<BaseClaim> baseClaims = _jwtService.GetClaimsByKey(oldAccessToken,"Role");
+        List<BaseClaim> baseClaims = _jwtService.GetClaimsByKey(oldAccessToken,CoreMessages.CliamRole);
 
         RefreshTokenValidType validType = await _refreshTokenService.GetRefreshTokenValidType(refreshTokenFromCookie, createdByIp!, user);
 
@@ -74,14 +75,14 @@ public class RefreshBehavior<TRequest, TResponse>
                 break;
             case RefreshTokenValidType.Expired:
                 BaseRefreshToken? revokeRefreshToken = await _refreshTokenService.GetRefreshTokenByToken(refreshTokenFromCookie, createdByIp);
-                await _refreshTokenService.RevokeRefreshToken(revokeRefreshToken!, createdByIp, reason: "Token expired.");
-                throw new AuthorizationException("Please log in");
+                await _refreshTokenService.RevokeRefreshToken(revokeRefreshToken!, createdByIp, reason: CoreMessages.TokenExpired);
+                throw new AuthorizationException(CoreMessages.LogIn);
             case RefreshTokenValidType.Deleted:
                 BaseRefreshToken? revokeAllRefreshToken = await _refreshTokenService.GetRefreshTokenByToken(refreshTokenFromCookie, createdByIp);
-                await _refreshTokenService.RevokeDescendantRefreshTokens(revokeAllRefreshToken!, createdByIp, "Token reuse detected");
+                await _refreshTokenService.RevokeDescendantRefreshTokens(revokeAllRefreshToken!, createdByIp,CoreMessages.TokenReuseDetected);
                 break;
             case RefreshTokenValidType.NotFound:
-                throw new AuthorizationException("You are not authorized.");
+                throw new AuthorizationException(CoreMessages.NotAuthorized);
         }
         TResponse response = await next();
         return response;
