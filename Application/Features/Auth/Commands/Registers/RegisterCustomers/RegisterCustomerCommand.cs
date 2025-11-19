@@ -75,10 +75,9 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
             }
 
             AccessToken accessToken = await _authServise.CreateAccessToken(customer);
-
             BaseRefreshToken refreshToken = await _authServise.CreateRefreshToken(customer,request.IpAdress);
-
-            RegisteredResponse registeredResponse = new() { AccessToken = accessToken, RefreshToken = refreshToken };
+            BaseRefreshToken addedRefreshToken = await _authServise.AddRefreshToken(refreshToken);
+            RegisteredResponse registeredResponse = new() { AccessToken = accessToken, RefreshToken = addedRefreshToken };
 
             return registeredResponse;
         }
