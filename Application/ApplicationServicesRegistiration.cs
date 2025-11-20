@@ -2,6 +2,7 @@
 using Application.Services.AuthService;
 using Application.Services.CorporateCustomers;
 using Application.Services.Customers;
+using Application.Services.Employees;
 using Application.Services.IndividualCustomers;
 using Application.Services.OperationClaims;
 using Core.Application.Pipelines.Authorization;
@@ -38,6 +39,7 @@ public static class ApplicationServicesRegistiration
         services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();
         services.AddScoped<IOperationClaimService, OperationClaimManager>();
         services.AddScoped<IAuthService, AuthManager>();
+        services.AddScoped<IEmployeeService, EmplooyeManager>();
         //services.AddScoped<BaseRefreshToken, RefreshToken>();
         return services;
     }

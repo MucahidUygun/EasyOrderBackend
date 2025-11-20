@@ -20,13 +20,13 @@ public class AuthBusinessRules : BaseBusinessRules
         _userRepository = userRepository;
     }
 
-    public async Task UserShouldBeExistsWhenSelected(User? user)
+    public void UserShouldBeExistsWhenSelected(User? user)
     {
         if (user is null)
              throw new BusinessException("Bu email ile kayıtlı kullanıcı bulunamadı!");
     }
 
-    public async Task UserPasswordShouldBeMatch(User user,string password)
+    public void UserPasswordShouldBeMatch(User user,string password)
     {
         if (!HashingHelper.VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             throw new BusinessException("Yanlış Şifre");

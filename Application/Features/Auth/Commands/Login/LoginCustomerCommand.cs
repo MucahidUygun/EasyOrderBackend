@@ -50,8 +50,8 @@ public class LoginCommand : IRequest<LoggedResponse>
 
             LoggedResponse loggedResponse = new LoggedResponse();
 
-            await _authBusinessRules.UserShouldBeExistsWhenSelected(user);
-            await _authBusinessRules.UserPasswordShouldBeMatch(user,request.LoginCustomerCommandRequest.Password);
+            _authBusinessRules.UserShouldBeExistsWhenSelected(user);
+            _authBusinessRules.UserPasswordShouldBeMatch(user,request.LoginCustomerCommandRequest.Password);
 
             AccessToken accessToken = await _authService.CreateAccessToken(user);
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);

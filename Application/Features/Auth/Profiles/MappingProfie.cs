@@ -18,5 +18,6 @@ public class MappingProfie  : Profile
         CreateMap<Customer,RegisterCustomerCommandRequest>().ReverseMap();
         CreateMap<CorporateCustomer, RegisterCorporateCustomerRequest>().ReverseMap();
         CreateMap<IndividualCustomer,RegisterIndiviualCustomerCommandRequest>().ReverseMap();
+        CreateMap<Employee,RegisterEmployeeCommandRequest>().ReverseMap();
     }
 }

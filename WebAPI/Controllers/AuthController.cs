@@ -1,6 +1,7 @@
 ﻿using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Commands.Registers.RegisterCustomers;
+using Application.Features.Auth.Commands.Registers.RegisterEmployee;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Core.Entities;
@@ -36,6 +37,14 @@ namespace WebAPI.Controllers
         {
             RegisterIndividualCustomerCommand registerCustomer = new() { IpAdress = getIpAddress(), CommandRequest = request };
             RegisteredResponse response = await Mediator.Send(registerCustomer);
+            setRefreshTokenToCookie(response.RefreshToken);
+            return Created(uri: "", response.AccessToken);
+        }
+        [HttpPost("RegisterEmployee")]
+        public async Task<IActionResult> RegisterEmployee([FromBody] RegisterEmployeeCommandRequest request)
+        {
+            RegisterEmployeeCommand registerEmployee = new() { registerEmployeeRequest = request, IpAdress = getIpAddress() };
+            RegisteredResponse response = await Mediator.Send(registerEmployee);
             setRefreshTokenToCookie(response.RefreshToken);
             return Created(uri: "", response.AccessToken);
         }

@@ -21,7 +21,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Features\Auth\Commands\Registers\RegisterEmployee\" />
+	  <Folder Include="Features\Employees\Constants\" />
+	  <Folder Include="Features\Employees\Rules\" />
 	  <Folder Include="Features\OperationClaims\Commands\Delete\" />
 	  <Folder Include="Features\OperationClaims\Commands\Update\" />
 	  <Folder Include="Features\OperationClaims\Constants\" />
