@@ -49,15 +49,15 @@ public class RefreshTokenManager : IRefreshTokenService
         await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
     }
 
-    public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken,string ipAdress)
+    public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken,string ipAdress,bool withDeleted=false)
     {
-        BaseRefreshToken? token = await _refreshTokenRepository.GetAsync(p => p.Token == refreshToken && p.CreatedByIp == ipAdress);
+        BaseRefreshToken? token = await _refreshTokenRepository.GetAsync(p => p.Token == refreshToken && p.CreatedByIp == ipAdress,withDeleted:withDeleted);
         return token;
     }
 
     public async Task<RefreshTokenValidType> GetRefreshTokenValidType(string refreshToken, string createdByIp,BaseUser user)
     {
-        BaseRefreshToken? baseRefreshToken = await GetRefreshTokenByToken(refreshToken,createdByIp);
+        BaseRefreshToken? baseRefreshToken = await GetRefreshTokenByToken(refreshToken,createdByIp,true);
 
         if (baseRefreshToken is null) return RefreshTokenValidType.NotFound;
         if (baseRefreshToken.ExpiresDate >= DateTime.UtcNow) return RefreshTokenValidType.Active;
@@ -69,10 +69,14 @@ public class RefreshTokenManager : IRefreshTokenService
     public async Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason)
     {
         BaseRefreshToken? childToken = await _refreshTokenRepository.GetAsync(predicate: r =>
-            r.Token == refreshToken.ReplacedByToken
-        );
-
-        if (childToken?.RevokedDate != null && childToken.ExpiresDate <= DateTime.UtcNow)
+             r.Token == refreshToken.ReplacedByToken
+         );
+        if (childToken is null || childToken?.RevokedDate is not null)
+        {
+            await RevokeRefreshToken(refreshToken, ipAddress, reason);
+            return;
+        }
+        if (childToken?.ExpiresDate <= DateTime.UtcNow)
             await RevokeRefreshToken(childToken, ipAddress, reason);
         else
             await RevokeDescendantRefreshTokens(refreshToken: childToken!, ipAddress, reason);
@@ -85,6 +89,7 @@ public class RefreshTokenManager : IRefreshTokenService
         token.ReasonRevoked = reason;
         token.ReplacedByToken = replacedByToken;
         token.IsActive = false;
+        token.DeletedDate = DateTime.UtcNow;
         await _refreshTokenRepository.UpdateAsync(token);
     }
     //Üretilen RefreshTokenı eski RefreshTokena bağlama

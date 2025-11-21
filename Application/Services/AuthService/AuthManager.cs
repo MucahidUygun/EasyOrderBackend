@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using Application.Features.Auth.Dtos.Responses;
+using AutoMapper;
 using Core.Application.Contracts.Security.Interfaces;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Configuration;
 using Persistence.Services;
@@ -12,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,15 +27,18 @@ public class AuthManager : IAuthService
     private readonly IUserOperationClaimRepository _userOperationClaimRepository;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AuthManager(
     IRefreshTokenRepository refreshTokenRepository,
     ITokenHelper tokenHelper,
     IMapper mapper,
     IUserOperationClaimRepository userOperationClaimRepository,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    IHttpContextAccessor httpContextAccessor
 )
     {
+        _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
         _userOperationClaimRepository = userOperationClaimRepository;
         _refreshTokenRepository = refreshTokenRepository;
@@ -98,8 +104,12 @@ public class AuthManager : IAuthService
         BaseRefreshToken? childToken = await _refreshTokenRepository.GetAsync(predicate: r =>
             r.Token == refreshToken.ReplacedByToken
         );
-
-        if (childToken?.RevokedDate != null && childToken.ExpiresDate <= DateTime.UtcNow)
+        if (childToken is null || childToken?.RevokedDate is not null)
+        {
+            await RevokeRefreshToken(refreshToken, ipAddress, reason);
+            return;
+        }
+        if (childToken?.ExpiresDate <= DateTime.UtcNow)
             await RevokeRefreshToken(childToken, ipAddress, reason);
         else
             await RevokeDescendantRefreshTokens(refreshToken: childToken!, ipAddress, reason);
@@ -111,6 +121,8 @@ public class AuthManager : IAuthService
         token.RevokedByIp = ipAddress;
         token.ReasonRevoked = reason;
         token.ReplacedByToken = replacedByToken;
+        token.IsActive = false;
+        token.DeletedDate = DateTime.UtcNow;
         await _refreshTokenRepository.UpdateAsync(token);
     }
 
@@ -121,6 +133,38 @@ public class AuthManager : IAuthService
         await RevokeRefreshToken(refreshToken,ipAddress,reason: "Replaced by new token", newRefreshToken.Token);
 
         return newRefreshToken;
+    }
+
+    public async Task<ExitedResponse> LogOut()
+    {
+        string? refreshToken = GetRefreshTokenFromCookie();
+        if (refreshToken is null)
+            return new () { Message = "Refresh token not exists",Status = false };
+        string? ipAdress = GetByIpAdressFromHeaders();
+        if (ipAdress is null)
+            return new () { Message = "IpAdress not exists",Status = false };
+        BaseRefreshToken? baseRefresh = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken && p.CreatedByIp==ipAdress);
+        if (baseRefresh is null)
+            return new () {Message = "Refresh token not exists",Status = false};
+        await RevokeDescendantRefreshTokens(baseRefresh,ipAdress,"LogOut");
+        DeleteRefreshTokenFromCookie();
+        return new () { Message = "Logout is success",Status = true };
+    }
+    public string? GetByIpAdressFromHeaders()
+    {
+        return _httpContextAccessor.HttpContext!.Request.Headers.ContainsKey("X-Forwarded-For")
+        ? _httpContextAccessor.HttpContext!.Request.Headers["X-Forwarded-For"].ToString()
+        : _httpContextAccessor.HttpContext!.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+    }
+
+    public string? GetRefreshTokenFromCookie()
+    {
+        return _httpContextAccessor.HttpContext!.Request.Cookies.FirstOrDefault(p => p.Key.Equals("refreshToken")).Value;
+    }
+
+    public void DeleteRefreshTokenFromCookie()
+    {
+       _httpContextAccessor.HttpContext!.Response.Cookies.Delete("refreshToken");
     }
 
 }

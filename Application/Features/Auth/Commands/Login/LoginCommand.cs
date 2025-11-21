@@ -17,7 +17,7 @@ namespace Application.Features.Auth.Commands.Login;
 
 public class LoginCommand : IRequest<LoggedResponse>
 {
-    public LoginCommandRequest LoginCustomerCommandRequest { get; set; }
+    public LoginCommandRequest? LoginCustomerCommandRequest { get; set; }
     public string IpAdress { get; set; }
 
     public LoginCommand(LoginCommandRequest? loginCustomerCommandRequest, string ıpAdress)

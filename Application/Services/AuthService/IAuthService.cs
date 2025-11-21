@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Application.Features.Auth.Dtos.Responses;
+using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Query;
@@ -30,5 +31,5 @@ public interface IAuthService
         bool withDeleted = false,
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
-
+    public Task<ExitedResponse> LogOut();
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Commands.Registers.RegisterCustomers;
 using Application.Features.Auth.Commands.Registers.RegisterEmployee;
@@ -56,6 +57,12 @@ namespace WebAPI.Controllers
             LoggedResponse response = await Mediator.Send(loginCommand);
             setRefreshTokenToCookie(response.RefreshToken);
             return Ok(response.AccessToken);
+        }
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            ExitedResponse response = await Mediator.Send(new LogoutCommand());
+            return Ok(response);
         }
 
         private void setRefreshTokenToCookie(BaseRefreshToken refreshToken)
