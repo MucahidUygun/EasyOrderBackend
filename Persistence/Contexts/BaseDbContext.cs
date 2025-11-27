@@ -22,6 +22,7 @@ public class BaseDbContext : DbContext
     public DbSet<BaseRefreshToken> RefreshTokens { get; set; }
     public DbSet<OperationClaim> OperationClaims { get; set; }
     public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
+    public DbSet<EmailAuthenticator> EmailAuthenticator { get; set; }
 
     public BaseDbContext(DbContextOptions dbContextOptions,IConfiguration configuration): base(dbContextOptions)
     {

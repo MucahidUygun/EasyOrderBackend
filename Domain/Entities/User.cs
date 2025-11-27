@@ -11,4 +11,8 @@ public class User : BaseUser
 {
     public string PhoneNumber { get; set; }
     public string Adress { get; set; }
+
+    public virtual ICollection<UserOperationClaim> UserOperationClaims { get; set; } = default!;
+    public virtual ICollection<BaseRefreshToken> BaseRefreshToken { get; set; } = default!;
+    public virtual ICollection<EmailAuthenticator> EmailAuthenticators { get; set; } = default!;
 }
