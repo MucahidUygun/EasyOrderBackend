@@ -8,6 +8,8 @@ using Application.Services.OperationClaims;
 using Core.Application.Pipelines.Authorization;
 using Core.Application.Rules;
 using Core.Entities;
+using Core.Mailing.MailKitImplementations;
+using Core.Mailing;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +24,8 @@ namespace Application;
 
 public static class ApplicationServicesRegistiration
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+        MailSettings mailSettings)
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddMediatR(configuration =>
@@ -33,6 +36,7 @@ public static class ApplicationServicesRegistiration
             configuration.AddOpenBehavior(typeof(RefreshBehavior<,>));
 
         });
+        services.AddSingleton<IMailService, MailKitMailService>(_ => new MailKitMailService(mailSettings));
         services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));
         services.AddScoped<ICustomerService, CustomerManager>();
         services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Core.Security.Encryption;
+using Core.Mailing;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,7 +72,8 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddSecurityServices();
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(mailSettings: builder.Configuration.GetSection("MailSettings").Get<MailSettings>()
+        ?? throw new InvalidOperationException("MailSettings section cannot found in configuration."));
 // Bağlantı dizesini yapılandırma
 
 var app = builder.Build();

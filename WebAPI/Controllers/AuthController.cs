@@ -64,6 +64,11 @@ namespace WebAPI.Controllers
             ExitedResponse response = await Mediator.Send(new LogoutCommand());
             return Ok(response);
         }
+        [HttpPost("VerifyAccount")]
+        public async Task<IActionResult> VerifyAccount()
+        {
+            return Ok();
+        }
 
         private void setRefreshTokenToCookie(BaseRefreshToken refreshToken)
         {
