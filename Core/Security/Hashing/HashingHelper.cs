@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Security.Hashing;
 
-public class HashingHelper
+public static class HashingHelper
 {
     public static void CreatePasswordHash(string password,out byte[] passwordHash,out byte[] passwordSalt)
     {
@@ -29,5 +29,20 @@ public class HashingHelper
 
             return true;
         }
+    }
+    public static string CreateActivationKey(string value)
+    {
+        using (HMACSHA512 hmac = new())
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            string backToString = Encoding.UTF8.GetString(hmac.ComputeHash(bytes));
+            return backToString;
+        }
+    }
+    public static string GenerateRandomKey(int length = 16)
+    {
+        byte[] bytes = new byte[length];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }

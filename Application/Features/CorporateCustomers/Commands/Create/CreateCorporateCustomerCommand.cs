@@ -49,7 +49,7 @@ public class CreateCorporateCustomerCommand : IRequest<CreatedCorporateCustomerR
             corporateCustomer.PasswordHash = passwordHash;
             corporateCustomer.PasswordSalt = passwordSalt;
 
-             await _corporateCustomerService.AddAsync(corporateCustomer,cancellationToken);
+             await _corporateCustomerService.AddAsync(corporateCustomer,true,cancellationToken);
 
             CreatedCorporateCustomerResponse response = _mapper.Map<CreatedCorporateCustomerResponse>(corporateCustomer);
 

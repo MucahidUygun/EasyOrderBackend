@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Dtos.Requests;
+﻿using Application.Features.Auth.Constants;
+using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Application.Services.AuthService;
 using Application.Services.Employees;
@@ -75,7 +76,7 @@ public class RegisterEmployeeCommand : IRequest<RegisteredResponse>
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(addedEmployee, request.IpAdress);
             BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
-            RegisteredResponse response = new() { AccessToken = accessToken,RefreshToken = addedRefreshToken };
+            RegisteredResponse response = new() {Message = AuthMessages.SendEmailForEmailActivate };
             return response;
         }
     }

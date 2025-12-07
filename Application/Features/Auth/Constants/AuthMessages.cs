@@ -21,4 +21,5 @@ public static class AuthMessages
     public const string UserMailAlreadyExists = "UserMailAlreadyExists";
     public const string PasswordDontMatch = "PasswordDontMatch";
     public const string PasswordResetRequestExpired = "Süresi Doldu!";
+    public const string SendEmailForEmailActivate = "Emailinizi onaylamanız için e-posta gönderildi.";
 }

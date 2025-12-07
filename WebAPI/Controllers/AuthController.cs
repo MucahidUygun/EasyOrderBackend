@@ -3,6 +3,7 @@ using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Commands.Registers.RegisterCustomers;
 using Application.Features.Auth.Commands.Registers.RegisterEmployee;
+using Application.Features.Auth.Commands.VerifyAccount;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Core.Entities;
@@ -21,8 +22,8 @@ namespace WebAPI.Controllers
         {
             RegisterCustomerCommand registerCustomer = new() { IpAdress=getIpAddress(),RegisterCustomer = request };
             RegisteredResponse response = await Mediator.Send(registerCustomer);
-            setRefreshTokenToCookie(response.RefreshToken);
-            return Created(uri: "", response.AccessToken);
+            //setRefreshTokenToCookie(response.RefreshToken);
+            return Created(uri: "", response.Message);
         }
 
         [HttpPost("RegisterCorporateCustomer")]
@@ -30,24 +31,24 @@ namespace WebAPI.Controllers
         {
             RegisterCorporateCustomerCommand registerCustomer = new() { IpAdress = getIpAddress(), RegisterCorporateCustomerRequests = request };
             RegisteredResponse response = await Mediator.Send(registerCustomer);
-            setRefreshTokenToCookie(response.RefreshToken);
-            return Created(uri: "", response.AccessToken);
+            //setRefreshTokenToCookie(response.RefreshToken);
+            return Created(uri: "", response.Message);
         }
         [HttpPost("RegisterIndividualCustomer")]
         public async Task<IActionResult> RegisterIndividualCustomer([FromBody] RegisterIndiviualCustomerCommandRequest request)
         {
             RegisterIndividualCustomerCommand registerCustomer = new() { IpAdress = getIpAddress(), CommandRequest = request };
             RegisteredResponse response = await Mediator.Send(registerCustomer);
-            setRefreshTokenToCookie(response.RefreshToken);
-            return Created(uri: "", response.AccessToken);
+            //setRefreshTokenToCookie(response.RefreshToken);
+            return Created(uri: "", response.Message);
         }
         [HttpPost("RegisterEmployee")]
         public async Task<IActionResult> RegisterEmployee([FromBody] RegisterEmployeeCommandRequest request)
         {
             RegisterEmployeeCommand registerEmployee = new() { registerEmployeeRequest = request, IpAdress = getIpAddress() };
             RegisteredResponse response = await Mediator.Send(registerEmployee);
-            setRefreshTokenToCookie(response.RefreshToken);
-            return Created(uri: "", response.AccessToken);
+            //setRefreshTokenToCookie(response.RefreshToken);
+            return Created(uri: "", response.Message);
         }
 
         [HttpPost("Login")]
@@ -64,9 +65,11 @@ namespace WebAPI.Controllers
             ExitedResponse response = await Mediator.Send(new LogoutCommand());
             return Ok(response);
         }
-        [HttpPost("VerifyAccount")]
-        public async Task<IActionResult> VerifyAccount()
+        [HttpGet("VerifyAccount")]
+        public async Task<IActionResult> VerifyAccount([FromQuery] VerifyEmailCommandRequest commandRequest)
         {
+            VerifyAccountCommand command = new() { VerifyEmailCommandRequest = commandRequest };
+            await Mediator.Send(command);
             return Ok();
         }
 

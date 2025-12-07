@@ -13,7 +13,7 @@ namespace Application.Services.CorporateCustomers;
 
 public interface ICorporateCustomerService
 {
-    public Task<CorporateCustomer> AddAsync(CorporateCustomer corporateCustomer , CancellationToken cancellationToken = default);
+    public Task<CorporateCustomer> AddAsync(CorporateCustomer corporateCustomer ,bool IsActive =false, CancellationToken cancellationToken = default);
     public Task<CorporateCustomer> UpdateAsync(UpdateCorporateCustomerRequest corporateCustomer,CancellationToken cancellationToken = default);
     public Task<CorporateCustomer> DeleteAsync(DeleteCorporateCustomerRequest corporateCustomer,CancellationToken cancellationToken = default);
     public Task<CorporateCustomer> GetAsync(

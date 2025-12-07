@@ -132,9 +132,9 @@ where TContext : DbContext
         return await queryable.AnyAsync(cancellationToken);
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity> AddAsync(TEntity entity,bool IsActive = true, CancellationToken cancellationToken = default)
     {
-        entity.IsActive = true;
+        entity.IsActive = IsActive;
         entity.CreatedDate = DateTime.UtcNow;
         await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
         await Context.SaveChangesAsync(cancellationToken);

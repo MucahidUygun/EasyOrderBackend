@@ -31,7 +31,7 @@ public class IndividualCustomerManager : IIndividualCustomerService
             await AddAsync(individualCustomer, cancellationToken);
         individualCustomer.IsActive = true;
 
-        IndividualCustomer addedIndvidualCustomer = await _repository.AddAsync(individualCustomer, cancellationToken);
+        IndividualCustomer addedIndvidualCustomer = await _repository.AddAsync(individualCustomer,cancellationToken: cancellationToken);
 
         return addedIndvidualCustomer;
     }

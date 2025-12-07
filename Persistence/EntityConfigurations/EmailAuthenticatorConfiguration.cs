@@ -18,9 +18,10 @@ public class EmailAuthenticatorConfiguration : IEntityTypeConfiguration<EmailAut
         builder.Property(p => p.Id).HasColumnName("Id").IsRequired();
         builder.Property(p => p.ResetPasswordToken).HasColumnName("ResetPasswordToken").IsRequired(false);
         builder.Property(p => p.ResetPasswordTokenExpiry).HasColumnName("ResetPasswordTokenExpiry").IsRequired(false);
+        builder.Property(p => p.VerifyEmailTokenExpiry).HasColumnName("VerifyEmailTokenExpiry").IsRequired(false);
         builder.Property(p => p.UserId).HasColumnName("UserId").IsRequired();
         builder.Property(p => p.ActivationKey).HasColumnName("ActivationKey");
-        builder.Property(p => p.IsActive).HasColumnName("IsActive").IsRequired();
+        builder.Property(p => p.IsActive).HasColumnName("IsVerified").IsRequired();
         builder.Property(p => p.CreatedDate).HasColumnName("CreatedDate").IsRequired();
         builder.Property(p => p.UpdatedDate).HasColumnName("UpdatedDate");
         builder.Property(p => p.DeletedDate).HasColumnName("DeletedDate");

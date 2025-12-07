@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Dtos.Requests;
+﻿using Application.Features.Auth.Constants;
+using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Application.Services.AuthService;
 using Application.Services.IndividualCustomers;
@@ -83,7 +84,7 @@ public class RegisterIndividualCustomerCommand:IRequest<RegisteredResponse>
             AccessToken accessToken = await _authService.CreateAccessToken(individualCustomer);
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(individualCustomer,request.IpAdress);
             BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
-            RegisteredResponse registeredResponse = new() { AccessToken = accessToken, RefreshToken = addedRefreshToken };
+            RegisteredResponse registeredResponse = new() { Message = AuthMessages.SendEmailForEmailActivate };
 
             return registeredResponse;
         }

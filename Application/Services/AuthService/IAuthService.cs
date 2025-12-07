@@ -32,4 +32,7 @@ public interface IAuthService
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
     public Task<ExitedResponse> LogOut();
+    public Task<EmailAuthenticator?> VeriyfEmailAsync(Guid Id,string activationKey);
+    public Task VerifiedEmailAsync(EmailAuthenticator authenticator);
+    public Task<EmailAuthenticator> CreateEmailVerifyAsync(User user);
 }

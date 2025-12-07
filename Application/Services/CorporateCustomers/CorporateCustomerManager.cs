@@ -26,13 +26,13 @@ public class CorporateCustomerManager : ICorporateCustomerService
         _mapper = mapper;
     }
 
-    public async Task<CorporateCustomer> AddAsync(CorporateCustomer corporateCustomer, CancellationToken cancellationToken = default)
+    public async Task<CorporateCustomer> AddAsync(CorporateCustomer corporateCustomer,bool IsActive = false, CancellationToken cancellationToken = default)
     {
         corporateCustomer.Id = Guid.NewGuid();
         if(await _repository.AnyAsync(p=>p.Id== corporateCustomer.Id))
-           await AddAsync(corporateCustomer, cancellationToken);
+           await AddAsync(corporateCustomer,IsActive, cancellationToken);
 
-        corporateCustomer.IsActive = true;
+        corporateCustomer.IsActive = IsActive;
         await _repository.AddAsync(corporateCustomer);
 
         return corporateCustomer;

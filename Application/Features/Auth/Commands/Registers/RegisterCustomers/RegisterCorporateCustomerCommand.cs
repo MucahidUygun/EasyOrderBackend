@@ -4,6 +4,7 @@ using Application.Features.Auth.Dtos.Responses;
 using Application.Services.AuthService;
 using Application.Services.CorporateCustomers;
 using AutoMapper;
+using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Mailing;
 using Core.Security.Hashing;
@@ -22,7 +23,7 @@ namespace Application.Features.Auth.Commands.Registers.RegisterCustomers;
 
 public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
 {
-    public RegisterCorporateCustomerRequest RegisterCorporateCustomerRequests { get; set; }
+    public RegisterCorporateCustomerRequest? RegisterCorporateCustomerRequests { get; set; }
     public string IpAdress { get; set; }
 
     public RegisterCorporateCustomerCommand()
@@ -61,6 +62,8 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
 
         public async Task<RegisteredResponse> Handle(RegisterCorporateCustomerCommand request, CancellationToken cancellationToken)
         {
+            if (request.RegisterCorporateCustomerRequests is null)
+                throw new BusinessException("Reqeust not be null");
             CorporateCustomer corporateCustomer = _mapper.Map<CorporateCustomer>(request.RegisterCorporateCustomerRequests);
 
             HashingHelper.CreatePasswordHash
@@ -71,7 +74,7 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
                 );
             corporateCustomer.PasswordHash = passwordHash;
             corporateCustomer.PasswordSalt = passwordSalt;
-            await _corporateCustomerService.AddAsync( corporateCustomer );
+            await _corporateCustomerService.AddAsync( corporateCustomer,IsActive:false,cancellationToken:cancellationToken );
 
             //UserOperationClaim[] userCliams =
             //{
@@ -90,20 +93,23 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
                 await _userOperationClaimRepository.AddAsync(claim);
             }
 
-            AccessToken accessToken = await _authService.CreateAccessToken(corporateCustomer);
-            BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(corporateCustomer, request.IpAdress);
-            BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
-            accessToken.Expiration = DateTime.Now.AddMinutes(10);
+            //AccessToken accessToken = await _authService.CreateAccessToken(corporateCustomer);
+            //BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(corporateCustomer, request.IpAdress);
+            //BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
+            //accessToken.Expiration = DateTime.Now.AddMinutes(10);
+
+            EmailAuthenticator emailAuthenticator = await _authService.CreateEmailVerifyAsync( corporateCustomer );
+            string urlActivationKey = CustomEncoders.UrlEncode(emailAuthenticator.ActivationKey!);
 
             var toEmailList = new List<MailboxAddress> { new(name: corporateCustomer.CompanyName, corporateCustomer.Email) };
 
-            string ResetPasswordLink = $"http://localhost:5033/verify-account?token={accessToken.Token}";
+            string VeriFyLink = $"http://localhost:7064/api/Auth/verifyAccount?Id={corporateCustomer.Id}&ActivationKey={urlActivationKey}";
 
             string htmlFilePath = Path.Combine("wwwroot", "emails", "VerifyEmail.html");
 
             string htmlContent = File.ReadAllText(htmlFilePath);
 
-            htmlContent = htmlContent.Replace("{{VerifyLink}}", ResetPasswordLink);
+            htmlContent = htmlContent.Replace("{{VerifyLink}}", VeriFyLink);
 
             _mailService.SendMail(
                 new Mail
@@ -111,12 +117,12 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
                     ToList = toEmailList,
                     Subject = "Hesap aktivasyon - EasyOrder",
                     TextBody =
-                        $"Link Üzerinde Hesabızı Onaylayın :  {ResetPasswordLink}",
+                        $"Link Üzerinde Hesabızı Onaylayın :  {VeriFyLink}",
                     HtmlBody = htmlContent
                 }
             );
 
-            return new RegisteredResponse() { AccessToken = accessToken, RefreshToken = addedRefreshToken };
+            return new RegisteredResponse() { Message=AuthMessages.SendEmailForEmailActivate };
         }
     }
 }

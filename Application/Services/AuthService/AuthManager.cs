@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Application.Contracts.Security.Interfaces;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
+using Core.Security.Hashing;
 using Core.Security.JWT;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +16,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +30,7 @@ public class AuthManager : IAuthService
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IEmailAuthenticatorRepository _emailAuthenticatorRepository;
 
     public AuthManager(
     IRefreshTokenRepository refreshTokenRepository,
@@ -36,7 +39,8 @@ public class AuthManager : IAuthService
     IUserOperationClaimRepository userOperationClaimRepository,
     IUserRepository userRepository,
     IHttpContextAccessor httpContextAccessor
-)
+,
+    IEmailAuthenticatorRepository emailAuthenticatorRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
@@ -44,6 +48,7 @@ public class AuthManager : IAuthService
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
         _mapper = mapper;
+        _emailAuthenticatorRepository = emailAuthenticatorRepository;
     }
 
 
@@ -149,6 +154,36 @@ public class AuthManager : IAuthService
         await RevokeDescendantRefreshTokens(baseRefresh,ipAdress,"LogOut");
         DeleteRefreshTokenFromCookie();
         return new () { Message = "Logout is success",Status = true };
+    }
+
+    public async Task<EmailAuthenticator?> VeriyfEmailAsync(Guid Id, string activationKey)
+    {
+       return await _emailAuthenticatorRepository.GetAsync(p=>p.UserId==Id && p.ActivationKey==CustomEncoders.UrlDecode(activationKey));
+    }
+    public async Task VerifiedEmailAsync(EmailAuthenticator authenticator)
+    {
+        EmailAuthenticator? emailAuthenticator = await _emailAuthenticatorRepository.GetAsync(p=>p.Id==authenticator.Id);
+        emailAuthenticator!.IsActive = true;
+        emailAuthenticator.ActivationKey = null;
+        User? user = await _userRepository.GetAsync(p=>p.Id==emailAuthenticator.UserId);
+        if (user is null)
+            throw new BusinessException("User not exists");
+        user.IsActive = true;
+
+        await _emailAuthenticatorRepository.UpdateAsync(emailAuthenticator);
+        await _userRepository.UpdateAsync(user);
+    }
+
+    public async Task<EmailAuthenticator> CreateEmailVerifyAsync(User user)
+    {
+        EmailAuthenticator emailAuthenticator = new()
+        {
+            UserId = user.Id,
+            ActivationKey = HashingHelper.CreateActivationKey(HashingHelper.GenerateRandomKey(6)),
+            VerifyEmailTokenExpiry = DateTime.Now.AddMinutes(10),
+        };
+        await _emailAuthenticatorRepository.AddAsync(emailAuthenticator,IsActive:false);
+        return emailAuthenticator;
     }
     public string? GetByIpAdressFromHeaders()
     {

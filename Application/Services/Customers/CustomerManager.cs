@@ -35,7 +35,7 @@ public class CustomerManager : ICustomerService
         if (await _repository.AnyAsync(p => p.Id == customer.Id))
             await AddAsync(customer, cancellationToken);
         customer.IsActive = true;
-        Customer addedCustomer = await _repository.AddAsync(customer, cancellationToken);
+        Customer addedCustomer = await _repository.AddAsync(customer,cancellationToken: cancellationToken);
         return addedCustomer;
     }
 
