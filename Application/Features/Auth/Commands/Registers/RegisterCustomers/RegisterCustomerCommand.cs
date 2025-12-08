@@ -29,10 +29,10 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
         IpAdress = string.Empty;
     }
 
-    public RegisterCustomerCommand(RegisterCustomerCommandRequest registerCustomer, string ıpAdress)
+    public RegisterCustomerCommand(RegisterCustomerCommandRequest registerCustomer, string ipAdress)
     {
         RegisterCustomer = registerCustomer;
-        IpAdress = ıpAdress;
+        IpAdress = ipAdress;
     }
 
     public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, RegisteredResponse>

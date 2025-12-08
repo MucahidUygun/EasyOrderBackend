@@ -103,7 +103,7 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
 
             var toEmailList = new List<MailboxAddress> { new(name: corporateCustomer.CompanyName, corporateCustomer.Email) };
 
-            string VeriFyLink = $"http://localhost:7064/api/Auth/verifyAccount?Id={corporateCustomer.Id}&ActivationKey={urlActivationKey}";
+            string VeriFyLink = $"https://localhost:7064/api/Auth/verifyAccount?Id={corporateCustomer.Id}&ActivationKey={urlActivationKey}";
 
             string htmlFilePath = Path.Combine("wwwroot", "emails", "VerifyEmail.html");
 
