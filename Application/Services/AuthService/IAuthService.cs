@@ -35,4 +35,11 @@ public interface IAuthService
     public Task<EmailAuthenticator?> VeriyfEmailAsync(Guid Id,string activationKey);
     public Task VerifiedEmailAsync(EmailAuthenticator authenticator);
     public Task<EmailAuthenticator> CreateEmailVerifyAsync(User user);
+    public Task<EmailAuthenticator?> UpdateEmailAuthenticatorAsync(EmailAuthenticator emailAuthenticator); 
+    public Task<EmailAuthenticator?> GetEmailAuthenticatorAsync(
+        Expression<Func<EmailAuthenticator, bool>> predicate,
+        Func<IQueryable<EmailAuthenticator>, IIncludableQueryable<EmailAuthenticator, object>>? include = null,
+        bool withDeleted = false,
+        bool enableTracking = true,
+        CancellationToken cancellationToken = default);
 }

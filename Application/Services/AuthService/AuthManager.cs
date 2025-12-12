@@ -185,6 +185,21 @@ public class AuthManager : IAuthService
         await _emailAuthenticatorRepository.AddAsync(emailAuthenticator,IsActive:false);
         return emailAuthenticator;
     }
+
+    public async Task<EmailAuthenticator?> UpdateEmailAuthenticatorAsync(EmailAuthenticator emailAuthenticator)
+    {
+        return await _emailAuthenticatorRepository.UpdateAsync(emailAuthenticator);
+    }
+
+    public async Task<EmailAuthenticator?> GetEmailAuthenticatorAsync(
+        Expression<Func<EmailAuthenticator, bool>> predicate, 
+        Func<IQueryable<EmailAuthenticator>, IIncludableQueryable<EmailAuthenticator, object>>? include = null, 
+        bool withDeleted = false, 
+        bool enableTracking = true, 
+        CancellationToken cancellationToken = default)
+    {
+        return await _emailAuthenticatorRepository.GetAsync(predicate, include, withDeleted, enableTracking,cancellationToken);
+    }
     public string? GetByIpAdressFromHeaders()
     {
         return _httpContextAccessor.HttpContext!.Request.Headers.ContainsKey("X-Forwarded-For")

@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Commands.Login;
+﻿using Application.Features.Auth.Commands.ForgotPassword;
+using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Commands.Registers.RegisterCustomers;
@@ -71,6 +72,13 @@ namespace WebAPI.Controllers
             VerifyAccountCommand command = new() { VerifyEmailCommandRequest = commandRequest };
             await Mediator.Send(command);
             return Ok();
+        }
+        [HttpPost("ForgotPassword")] 
+        public async Task<IActionResult> ForgotPassword([FromBody]ForgotPasswordRequest request)
+        {
+            ForgotPasswordCommand forgotPasswordCommand = new() {Request = request };
+            ForgotPasswordResponse response = await Mediator.Send(forgotPasswordCommand);
+            return Ok(response);
         }
 
         private void setRefreshTokenToCookie(BaseRefreshToken refreshToken)
