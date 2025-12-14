@@ -4,6 +4,7 @@ using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Registers.RegisterCustomer;
 using Application.Features.Auth.Commands.Registers.RegisterCustomers;
 using Application.Features.Auth.Commands.Registers.RegisterEmployee;
+using Application.Features.Auth.Commands.ResetPasswordCommand;
 using Application.Features.Auth.Commands.VerifyAccount;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
@@ -78,6 +79,13 @@ namespace WebAPI.Controllers
         {
             ForgotPasswordCommand forgotPasswordCommand = new() {Request = request };
             ForgotPasswordResponse response = await Mediator.Send(forgotPasswordCommand);
+            return Ok(response);
+        }
+        [HttpPost("ChangePassword/{id}/{activationKey}")]
+        public async Task<IActionResult> ResetPassword(Guid id, string activationkey, [FromBody] ChangePasswordCommandRequest request)
+        {
+            ChangePasswordCommand command = new() {ResetPasswordRequest = request,ActivationKey= activationkey,Id=id };
+            ChangePasswordCommandResponse response = await Mediator.Send(command);
             return Ok(response);
         }
 

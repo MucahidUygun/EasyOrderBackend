@@ -16,6 +16,7 @@ public class CorporateCustomerConfiguration : IEntityTypeConfiguration<Corporate
         builder.ToTable("CorporateCustomers");
 
         builder.Property(p => p.Id).HasColumnName("Id").IsRequired();
+        //builder.Property(p=>p.CurrentAccountCode).HasColumnName("CurrentAccountCode").IsRequired();
         builder.Property(p => p.CompanyName).HasColumnName("CompanyName");
         builder.Property(p => p.TaxNumber).HasColumnName("TaxNumber");
         builder.Property(p => p.TaxOffice).HasColumnName("TaxOffice");

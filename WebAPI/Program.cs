@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Core.Security.Encryption;
 using Core.Mailing;
+using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -85,7 +86,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //Hata yönetiminin başlangıçta ayağa kaldırılan yer
-//app.UseCustomExceptionMiddleware();
+app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -8,6 +8,7 @@ namespace Domain.Entities;
 
 public class CorporateCustomer : Customer
 {
+    //public string CurrentAccountCode { get; set; }
     public string CompanyName { get; set; }
     public string TaxNumber { get; set; }
     public string TaxOffice { get; set; }

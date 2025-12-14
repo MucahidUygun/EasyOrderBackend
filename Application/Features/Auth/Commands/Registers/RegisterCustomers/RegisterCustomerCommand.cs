@@ -63,7 +63,7 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
             customer.PasswordSalt = passwordSalt;
             customer.PasswordHash = passwordHash;
             await _customerService.AddAsync( customer );
-
+            
             UserOperationClaim[] userCliams =
             {
                 new() { UserId = customer.Id, OperationClaimId = 100,IsActive=true },

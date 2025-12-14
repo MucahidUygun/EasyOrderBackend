@@ -31,7 +31,7 @@ public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>
 
         public async Task<ForgotPasswordResponse> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
-            if (request is null  && request?.Request is null)
+            if (request is null  || request?.Request is null)
                 throw new BusinessException("Email field cannot be empty.");
             User? user = await _authService.GetUserAsync(p=>p.Email == request.Request!.Email);
             if (user is null)
@@ -51,7 +51,7 @@ public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>
 
             var toEmailList = new List<MailboxAddress> { new(name: "Dear Customer", user.Email) };
 
-            string ForgotPasswordLink = $"https://localhost:7064/api/Auth/verifyAccount?Id={user.Id}&ActivationKey={urlActivationKey}";
+            string ForgotPasswordLink = $"https://localhost:7064/api/Auth/ResetPassword/{user.Id}/{urlActivationKey}";
 
             string htmlFilePath = Path.Combine("wwwroot", "emails", "ForgotPassword.html");
 

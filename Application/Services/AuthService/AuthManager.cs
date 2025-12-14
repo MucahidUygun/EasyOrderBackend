@@ -104,6 +104,11 @@ public class AuthManager : IAuthService
             );
     }
 
+    public async Task<User> UpdateUserAsync(User user, CancellationToken cancellationToken)
+    {
+        return await _userRepository.UpdateAsync(user,cancellationToken);
+    }
+
     public async Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason)
     {
         BaseRefreshToken? childToken = await _refreshTokenRepository.GetAsync(predicate: r =>
