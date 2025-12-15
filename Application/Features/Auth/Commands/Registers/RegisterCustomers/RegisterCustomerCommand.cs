@@ -1,6 +1,7 @@
 ﻿using Application.Features.Auth.Constants;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
+using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
 using Application.Services.Customers;
 using AutoMapper;
@@ -10,11 +11,6 @@ using Core.Security.JWT;
 using Domain.Entities;
 using MediatR;
 using Persistence.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Features.Auth.Commands.Registers.RegisterCustomer;
 
@@ -41,17 +37,20 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
         public readonly ICustomerService _customerService;
         public readonly IUserOperationClaimRepository _userOperationClaimRepository;
         public readonly IMapper _mapper;
+        private readonly AuthBusinessRules _authBusinessRules;
 
-        public RegisterCustomerCommandHandler(IAuthService authServise, ICustomerService customerService, IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper)
+        public RegisterCustomerCommandHandler(IAuthService authServise, ICustomerService customerService, IUserOperationClaimRepository userOperationClaimRepository, IMapper mapper, AuthBusinessRules authBusinessRules)
         {
             _authServise = authServise;
             _customerService = customerService;
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
+            _authBusinessRules = authBusinessRules;
         }
 
         public async Task<RegisteredResponse> Handle(RegisterCustomerCommand request, CancellationToken cancellationToken)
         {
+            _authBusinessRules.IsCustomerRequestNull(request.RegisterCustomer);
             Customer customer = _mapper.Map<Customer>(request.RegisterCustomer);
 
             HashingHelper.CreatePasswordHash

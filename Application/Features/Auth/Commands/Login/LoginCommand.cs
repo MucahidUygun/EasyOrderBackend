@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Dtos.Requests;
+﻿using Application.Features.Auth.Constants;
+using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
 using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
@@ -46,12 +47,13 @@ public class LoginCommand : IRequest<LoggedResponse>
 
         public async Task<LoggedResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            User? user = await _authService.GetUserAsync(predicate: p=>p.Email == request.LoginCustomerCommandRequest.Email);
-
+            _authBusinessRules.LoginRequestIsNull(request.LoginCustomerCommandRequest);
+            User? user = await _authService.GetUserAsync(predicate: p=>p.Email == request.LoginCustomerCommandRequest!.Email);
+            _authBusinessRules.CheckUserIsNull(user,AuthMessages.EmailCannotBeEmpty);
             LoggedResponse loggedResponse = new LoggedResponse();
 
             _authBusinessRules.UserShouldBeExistsWhenSelected(user);
-            _authBusinessRules.UserPasswordShouldBeMatch(user,request.LoginCustomerCommandRequest.Password);
+            _authBusinessRules.UserPasswordShouldBeMatch(user!,request.LoginCustomerCommandRequest!.Password);
 
             AccessToken accessToken = await _authService.CreateAccessToken(user);
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);

@@ -1,23 +1,17 @@
 ﻿using Application.Features.Auth.Constants;
 using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
+using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
 using Application.Services.CorporateCustomers;
 using AutoMapper;
 using Core.CrossCuttingConcerns.Expeptions.Types;
-using Core.Entities;
 using Core.Mailing;
 using Core.Security.Hashing;
-using Core.Security.JWT;
 using Domain.Entities;
 using MediatR;
 using MimeKit;
 using Persistence.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Features.Auth.Commands.Registers.RegisterCustomers;
 
@@ -45,30 +39,35 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
         public readonly IAuthService _authService;
         public readonly ICorporateCustomerService _corporateCustomerService;
         private readonly IMailService _mailService;
+        private readonly AuthBusinessRules _authBusinessRules;
 
         public RegisterCorporateCustomerCommandHandler(
             IUserOperationClaimRepository userOperationClaimRepository,
             IMapper mapper,
             IAuthService authService,
             ICorporateCustomerService corporateCustomerService,
-            IMailService mailService)
+            IMailService mailService,
+            AuthBusinessRules authBusinessRules)
         {
             _userOperationClaimRepository = userOperationClaimRepository;
             _mapper = mapper;
             _authService = authService;
             _corporateCustomerService = corporateCustomerService;
             _mailService = mailService;
+            _authBusinessRules = authBusinessRules;
         }
 
         public async Task<RegisteredResponse> Handle(RegisterCorporateCustomerCommand request, CancellationToken cancellationToken)
         {
-            if (request.RegisterCorporateCustomerRequests is null)
-                throw new BusinessException("Reqeust not be null");
+            _authBusinessRules.IsCorporateCustomerRequestNull(request:request.RegisterCorporateCustomerRequests);
+            _authBusinessRules.IsCorpateFieldNull(request.RegisterCorporateCustomerRequests);
+
+            
             CorporateCustomer corporateCustomer = _mapper.Map<CorporateCustomer>(request.RegisterCorporateCustomerRequests);
 
             HashingHelper.CreatePasswordHash
                 (
-                password:request.RegisterCorporateCustomerRequests.Password!,
+                password:request.RegisterCorporateCustomerRequests!.Password!,
                 passwordHash: out byte[] passwordHash,
                 passwordSalt: out byte[] passwordSalt
                 );
@@ -76,11 +75,6 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
             corporateCustomer.PasswordSalt = passwordSalt;
             await _corporateCustomerService.AddAsync( corporateCustomer,IsActive:false,cancellationToken:cancellationToken );
 
-            //UserOperationClaim[] userCliams =
-            //{
-            //    new() { UserId = corporateCustomer.Id, OperationClaimId = 100,IsActive=true },
-            //    new() { UserId = corporateCustomer.Id, OperationClaimId = 101,IsActive=true },
-            //};
 
             foreach (int roleId in AuthOperationClaims.OperationClaimCorporateCustomerRoleIds.ToArray())
             {
@@ -93,17 +87,12 @@ public class RegisterCorporateCustomerCommand : IRequest<RegisteredResponse>
                 await _userOperationClaimRepository.AddAsync(claim);
             }
 
-            //AccessToken accessToken = await _authService.CreateAccessToken(corporateCustomer);
-            //BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(corporateCustomer, request.IpAdress);
-            //BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
-            //accessToken.Expiration = DateTime.Now.AddMinutes(10);
-
             EmailAuthenticator emailAuthenticator = await _authService.CreateEmailVerifyAsync( corporateCustomer );
             string urlActivationKey = CustomEncoders.UrlEncode(emailAuthenticator.ActivationKey!);
 
             var toEmailList = new List<MailboxAddress> { new(name: corporateCustomer.CompanyName, corporateCustomer.Email) };
 
-            string VeriFyLink = $"https://localhost:7064/api/Auth/verifyAccount?Id={corporateCustomer.Id}&ActivationKey={urlActivationKey}";
+            string VeriFyLink = $"{AuthMessages.BaseAuthUrl}verifyAccount?Id={corporateCustomer.Id}&ActivationKey={urlActivationKey}";
 
             string htmlFilePath = Path.Combine("wwwroot", "emails", "VerifyEmail.html");
 

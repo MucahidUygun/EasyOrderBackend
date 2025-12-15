@@ -88,8 +88,12 @@ public class AuthManager : IAuthService
 
     public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken)
     {
-        BaseRefreshToken? token = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken);  
-        return token;
+        return await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken);
+    }
+
+    public async Task<BaseRefreshToken?> GetRefreshTokenAsync(Expression<Func<BaseRefreshToken, bool>> predicate, Func<IQueryable<BaseRefreshToken>, IIncludableQueryable<BaseRefreshToken, object>>? include = null, bool withDeleted = false, bool enableTracking = false, CancellationToken cancellationToken = default)
+    {
+        return  await _refreshTokenRepository.GetAsync(predicate, include, withDeleted, enableTracking, cancellationToken);
     }
 
     public async Task<User?> GetUserAsync(Expression<Func<User, bool>> predicate, Func<IQueryable<User>, IIncludableQueryable<User, object>>? include = null, bool withDeleted = false, bool enableTracking = true, CancellationToken cancellationToken = default)
@@ -143,22 +147,6 @@ public class AuthManager : IAuthService
         await RevokeRefreshToken(refreshToken,ipAddress,reason: "Replaced by new token", newRefreshToken.Token);
 
         return newRefreshToken;
-    }
-
-    public async Task<ExitedResponse> LogOut()
-    {
-        string? refreshToken = GetRefreshTokenFromCookie();
-        if (refreshToken is null)
-            return new () { Message = "Refresh token not exists",Status = false };
-        string? ipAdress = GetByIpAdressFromHeaders();
-        if (ipAdress is null)
-            return new () { Message = "IpAdress not exists",Status = false };
-        BaseRefreshToken? baseRefresh = await _refreshTokenRepository.GetAsync(p=>p.Token==refreshToken && p.CreatedByIp==ipAdress);
-        if (baseRefresh is null)
-            return new () {Message = "Refresh token not exists",Status = false};
-        await RevokeDescendantRefreshTokens(baseRefresh,ipAdress,"LogOut");
-        DeleteRefreshTokenFromCookie();
-        return new () { Message = "Logout is success",Status = true };
     }
 
     public async Task<EmailAuthenticator?> VeriyfEmailAsync(Guid Id, string activationKey)

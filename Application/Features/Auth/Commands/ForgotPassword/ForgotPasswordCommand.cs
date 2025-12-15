@@ -1,5 +1,7 @@
-﻿using Application.Features.Auth.Dtos.Requests;
+﻿using Application.Features.Auth.Constants;
+using Application.Features.Auth.Dtos.Requests;
 using Application.Features.Auth.Dtos.Responses;
+using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Mailing;
@@ -22,34 +24,32 @@ public class ForgotPasswordCommand : IRequest<ForgotPasswordResponse>
     {
         private readonly IAuthService _authService;
         private readonly IMailService _mailService;
+        private readonly AuthBusinessRules _authBusinessRules;
 
-        public ForgotPasswordCommandHandler(IAuthService authService, IMailService mailService)
+        public ForgotPasswordCommandHandler(IAuthService authService, IMailService mailService, AuthBusinessRules authBusinessRules)
         {
             _authService = authService;
             _mailService = mailService;
+            _authBusinessRules = authBusinessRules;
         }
 
         public async Task<ForgotPasswordResponse> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
-            if (request is null  || request?.Request is null)
-                throw new BusinessException("Email field cannot be empty.");
+            _authBusinessRules.CheckForgotPasswordRequestIsNull(request.Request);
             User? user = await _authService.GetUserAsync(p=>p.Email == request.Request!.Email);
-            if (user is null)
-                throw new BusinessException("Password reset e-mail sent.");
-            EmailAuthenticator? emailAuthenticator = await _authService.GetEmailAuthenticatorAsync(p=>p.UserId == user.Id,cancellationToken:cancellationToken);
-            if (emailAuthenticator is null)
-                throw new BusinessException("Please activate your account!");
-            emailAuthenticator.ResetPasswordToken = true;
+            _authBusinessRules.CheckUserIsNull(user,AuthMessages.UserDontExists);
+            EmailAuthenticator? emailAuthenticator = await _authService.GetEmailAuthenticatorAsync(p=>p.UserId == user!.Id,cancellationToken:cancellationToken);
+            _authBusinessRules.CheckAccountIsActive(emailAuthenticator);
+            emailAuthenticator!.ResetPasswordToken = true;
             emailAuthenticator.ResetPasswordTokenExpiry = DateTime.Now.AddMinutes(30);
             emailAuthenticator.ActivationKey = HashingHelper.CreateActivationKey(HashingHelper.GenerateRandomKey(6));
 
             emailAuthenticator = await _authService.UpdateEmailAuthenticatorAsync(emailAuthenticator);
-            if (emailAuthenticator is null)
-                throw new BusinessException("Password reset e-mail sent.");
+            _authBusinessRules.CheckAccountIsActive(emailAuthenticator);
 
-            string urlActivationKey = CustomEncoders.UrlEncode(emailAuthenticator.ActivationKey!);
+            string urlActivationKey = CustomEncoders.UrlEncode(emailAuthenticator!.ActivationKey!);
 
-            var toEmailList = new List<MailboxAddress> { new(name: "Dear Customer", user.Email) };
+            var toEmailList = new List<MailboxAddress> { new(name: "Dear Customer", user!.Email) };
 
             string ForgotPasswordLink = $"https://localhost:7064/api/Auth/ResetPassword/{user.Id}/{urlActivationKey}";
 
