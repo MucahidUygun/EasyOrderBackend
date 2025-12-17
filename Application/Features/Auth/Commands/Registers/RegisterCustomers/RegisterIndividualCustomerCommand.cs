@@ -54,10 +54,7 @@ public class RegisterIndividualCustomerCommand:IRequest<RegisteredResponse>
         public async Task<RegisteredResponse> Handle(RegisterIndividualCustomerCommand request, CancellationToken cancellationToken)
         {
             if (request.CommandRequest is null)
-                throw new ValidationException(new List<ValidationExceptionModel>
-                {
-                new ValidationExceptionModel("Command Request", "Command Reqeust cannot be null")
-                });
+                throw new BusinessException("Command Reqeust cannot be null");
             IndividualCustomer individualCustomer = _mapper.Map<IndividualCustomer>(request.CommandRequest);
 
             HashingHelper.CreatePasswordHash

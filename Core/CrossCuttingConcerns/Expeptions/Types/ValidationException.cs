@@ -7,20 +7,39 @@ public class ValidationException : Exception
 {
     public IEnumerable<ValidationExceptionModel> Errors { get; }
 
-    public ValidationException(IEnumerable<ValidationExceptionModel> errors) : base(CoreMessages.ValidationsError)
+    public ValidationException()
+       : base()
+    {
+        Errors = Array.Empty<ValidationExceptionModel>();
+    }
+
+    public ValidationException(string? message)
+        : base(message)
+    {
+        Errors = Array.Empty<ValidationExceptionModel>();
+    }
+
+    public ValidationException(string? message, System.Exception? innerException)
+        : base(message, innerException)
+    {
+        Errors = Array.Empty<ValidationExceptionModel>();
+    }
+
+    public ValidationException(IEnumerable<ValidationExceptionModel> errors)
+        : base(BuildErrorMessage(errors))
     {
         Errors = errors;
+    }
+    private static string BuildErrorMessage(IEnumerable<ValidationExceptionModel> errors)
+    {
+        IEnumerable<string> values = errors.Select((ValidationExceptionModel x) => $"{Environment.NewLine} -- {x.Property}: {string.Join(Environment.NewLine, x.Errors ?? Array.Empty<string>())}");
+        return "Validation failed: " + string.Join(string.Empty, values);
     }
 }
 
 public class ValidationExceptionModel
 {
-    public string Property { get; set; }
-    public string Error { get; set; }
-
-    public ValidationExceptionModel(string property, string error)
-    {
-        Property = property;
-        Error = error;
-    }
+   
+    public string? Property { get; set; }
+    public required IEnumerable<string>? Errors { get; set; }
 }
