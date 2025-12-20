@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Core.Security.Encryption;
 using Core.Mailing;
 using Core.CrossCuttingConcerns.Expeptions.Middlerwares;
+using Core.CrossCuttingConcerns.Logging.Configurations;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha512Signature },//Hangi şifreleme algoritması kullandığını jtw' ye belirleniyor(Güvenlik için default olarakda budur.) 
             ClockSkew = TimeSpan.Zero,//Zaman sapmasının önlemek için
             IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
-            
+
         };
     });
 
@@ -73,8 +74,14 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddSecurityServices();
-builder.Services.AddApplicationServices(mailSettings: builder.Configuration.GetSection("MailSettings").Get<MailSettings>()
-        ?? throw new InvalidOperationException("MailSettings section cannot found in configuration."));
+builder.Services.AddApplicationServices(
+    mailSettings: builder.Configuration.GetSection("MailSettings").Get<MailSettings>()
+        ?? throw new InvalidOperationException("MailSettings section cannot found in configuration."),
+    mongoDbLogConfiguration: builder.Configuration.GetSection("SerilogConfigurations:MongoDbConfiguration").Get<MongoDbLogConfiguration>()
+    ?? throw new InvalidOperationException("MongoDbConfiguration section cannot found in configuration."),
+    fileLogConfiguration: builder.Configuration.GetSection("SerilogConfigurations:FileLogConfiguration")
+        .Get<FileLogConfiguration>()
+        ?? throw new InvalidOperationException("FileLogConfiguration section cannot found in configuration."));
 // Bağlantı dizesini yapılandırma
 
 var app = builder.Build();

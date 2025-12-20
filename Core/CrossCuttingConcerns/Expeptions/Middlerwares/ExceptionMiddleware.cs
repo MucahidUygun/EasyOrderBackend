@@ -1,4 +1,5 @@
 ﻿using Core.CrossCuttingConcerns.Expeptions.Handlers;
+using Core.CrossCuttingConcerns.Logging.Abstraction;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System;
