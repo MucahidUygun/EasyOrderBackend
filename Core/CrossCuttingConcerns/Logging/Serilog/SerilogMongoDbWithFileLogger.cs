@@ -23,7 +23,7 @@ public class SerilogMongoDbWithFileLogger : SerilogLoggerServiceBase
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message}{NewLine}{Exception}"
             )
             .WriteTo.MongoDB(
-                databaseUrl: $"{mongoDbConfiguration.ConnectionString}/{mongoDbConfiguration.Database}",
+                databaseUrl: $"{mongoDbConfiguration.ConnectionString}",
                 collectionName: mongoDbConfiguration.Collection,
                 restrictedToMinimumLevel: LogEventLevel.Error
             )

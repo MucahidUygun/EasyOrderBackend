@@ -12,6 +12,16 @@ using Core.CrossCuttingConcerns.Logging.Configurations;
 
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AngularCors", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200") // Angular
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -86,6 +96,7 @@ builder.Services.AddApplicationServices(
 
 var app = builder.Build();
 
+app.UseCors("AngularCors");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

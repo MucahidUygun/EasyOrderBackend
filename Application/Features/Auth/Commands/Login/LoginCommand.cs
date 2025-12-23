@@ -4,6 +4,7 @@ using Application.Features.Auth.Dtos.Responses;
 using Application.Features.Auth.Rules;
 using Application.Services.AuthService;
 using AutoMapper;
+using Core.Application.Pipelines.Logging;
 using Core.Entities;
 using Core.Security.JWT;
 using Domain.Entities;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Auth.Commands.Login;
 
-public class LoginCommand : IRequest<LoggedResponse>
+public class LoginCommand : IRequest<LoggedResponse>,ILoggableRequest
 {
     public LoginCommandRequest? LoginCustomerCommandRequest { get; set; }
     public string IpAdress { get; set; }

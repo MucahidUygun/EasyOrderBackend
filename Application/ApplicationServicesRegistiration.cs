@@ -6,10 +6,14 @@ using Application.Services.Employees;
 using Application.Services.IndividualCustomers;
 using Application.Services.OperationClaims;
 using Core.Application.Pipelines.Authorization;
+using Core.Application.Pipelines.Logging;
 using Core.Application.Rules;
+using Core.CrossCuttingConcerns.Logging.Abstraction;
+using Core.CrossCuttingConcerns.Logging.Configurations;
+using Core.CrossCuttingConcerns.Logging.Serilog;
 using Core.Entities;
-using Core.Mailing.MailKitImplementations;
 using Core.Mailing;
+using Core.Mailing.MailKitImplementations;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +29,7 @@ namespace Application;
 public static class ApplicationServicesRegistiration
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+        MongoDbLogConfiguration mongoDbLogConfiguration, FileLogConfiguration fileLogConfiguration,
         MailSettings mailSettings)
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -33,10 +38,12 @@ public static class ApplicationServicesRegistiration
             configuration.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             //Claim kontrolünün sağlanması için altta ki satır eklendi!
             configuration.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
+            configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
             configuration.AddOpenBehavior(typeof(RefreshBehavior<,>));
 
         });
         services.AddSingleton<IMailService, MailKitMailService>(_ => new MailKitMailService(mailSettings));
+        services.AddSingleton<ILogger, SerilogMongoDbWithFileLogger>(_ => new SerilogMongoDbWithFileLogger(mongoDbLogConfiguration,fileLogConfiguration));
         services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));
         services.AddScoped<ICustomerService, CustomerManager>();
         services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();
