@@ -1,4 +1,6 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +27,8 @@ public static class PersistenceServiceRegistration
         services.AddScoped<IIndividualCustomerRespository, IndividualCustomerRepostitory>();
         services.AddScoped<ICorporateCustomerRepository, CorporateCustomerRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IRefreshTokenFactory, RefreshTokenFactory>();
+        services.AddScoped<BaseRefreshToken, RefreshToken>();
         services.AddScoped<IUserOperationClaimRepository,UserOperationClaimRepository>();
         services.AddScoped<IOperationClaimRepository, OperationClaimRepository>();
         services.AddScoped<IUserRepository, UserRepository>();

@@ -22,4 +22,5 @@ public interface IRefreshTokenService
 
     public Task<BaseRefreshToken> RotateRefreshToken(BaseUser user, string refreshToken, string ipAddress);
     public Task<RefreshTokenValidType> GetRefreshTokenValidType(string refreshToken,string createdByIp,BaseUser user);
+    public Task RefreshAsync(string refreshToken,string ip,string oldAccessToken);
 }

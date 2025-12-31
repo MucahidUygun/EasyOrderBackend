@@ -109,7 +109,7 @@ where TContext : DbContext
         var totalItems = await queryable.CountAsync(cancellationToken);
         var items = await queryable.Skip(index * size).Take(size).ToListAsync(cancellationToken);
 
-        return items;
+        return items!;
     }
 
     public async Task<bool> AnyAsync(

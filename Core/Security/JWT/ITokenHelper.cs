@@ -11,5 +11,11 @@ public interface ITokenHelper
 {
     public AccessToken CreateToken(BaseUser user,IList<BaseClaim> operationClaims);
 
-    public BaseRefreshToken CreateRefreshToken(BaseUser user,string ipAdress);
+    public BaseRefreshToken CreateRefreshToken(
+        BaseUser user,
+        string ipAdress, 
+        string deviceId, 
+        string? deviceName, 
+        string userAgent, 
+        string devicePlatform);
 }

@@ -19,7 +19,8 @@ public class BaseDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<IndividualCustomer> IndividualCustomers { get; set; }
     public DbSet<CorporateCustomer> CorporateCustomers { get; set; }
-    public DbSet<BaseRefreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+    //public DbSet<BaseRefreshToken> BaseRefreshTokens { get; set; }
     public DbSet<OperationClaim> OperationClaims { get; set; }
     public DbSet<UserOperationClaim> UserOperationClaims { get; set; }
     public DbSet<EmailAuthenticator> EmailAuthenticator { get; set; }
@@ -31,8 +32,12 @@ public class BaseDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        //modelBuilder.Entity<BaseRefreshToken>()
+        //.HasDiscriminator<string>("TokenType")
+        //.HasValue<RefreshToken>("RefreshToken");
         modelBuilder.Ignore<BaseClaim>();
         modelBuilder.Ignore<BaseUser>();
+        modelBuilder.Ignore<BaseRefreshToken>();
         foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
         {
             relationship.DeleteBehavior = DeleteBehavior.Restrict;

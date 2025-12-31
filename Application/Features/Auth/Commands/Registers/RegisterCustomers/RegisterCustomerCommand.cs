@@ -76,7 +76,7 @@ public class RegisterCustomerCommand : IRequest<RegisteredResponse>
 
             AccessToken accessToken = await _authServise.CreateAccessToken(customer);
             BaseRefreshToken refreshToken = await _authServise.CreateRefreshToken(customer,request.IpAdress);
-            BaseRefreshToken addedRefreshToken = await _authServise.AddRefreshToken(refreshToken);
+            //BaseRefreshToken addedRefreshToken = await _authServise.AddRefreshToken(refreshToken);
             RegisteredResponse registeredResponse = new() { Message= AuthMessages.SendEmailForEmailActivate };
 
             return registeredResponse;

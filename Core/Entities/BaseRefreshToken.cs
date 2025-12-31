@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace Core.Entities;
 
-public class BaseRefreshToken : BaseEntity<Guid>
+public abstract class BaseRefreshToken : BaseEntity<Guid>
 {
     public Guid UserId { get; set; }
     public string Token { get; set; }
     public DateTime? ExpiresDate { get; set; }
+    public string DeviceId { get; set; }
+    public string DevicePlatform { get; set; }
+    public string? DeviceName { get; set; }
+    public string UserAgent { get; set; }
     public string CreatedByIp { get; set; }
     public DateTime? RevokedDate { get; set; }
     public string? RevokedByIp { get; set; }
@@ -24,7 +28,7 @@ public class BaseRefreshToken : BaseEntity<Guid>
 
     }
 
-    public BaseRefreshToken(Guid userId, string token, DateTime expires,string createdByIp, DateTime revoked, string revokedByIp, string replacedByToken, string reasonRevoked, BaseUser user)
+    public BaseRefreshToken(Guid userId, string token, DateTime expires, string createdByIp, DateTime revoked, string revokedByIp, string replacedByToken, string reasonRevoked, BaseUser user, string deviceId, string devicePlatform, string? deviceName, string userAgent)
     {
         UserId = userId;
         Token = token;
@@ -35,5 +39,9 @@ public class BaseRefreshToken : BaseEntity<Guid>
         ReplacedByToken = replacedByToken;
         ReasonRevoked = reasonRevoked;
         User = user;
+        DeviceId = deviceId;
+        DevicePlatform = devicePlatform;
+        DeviceName = deviceName;
+        UserAgent = userAgent;
     }
 }

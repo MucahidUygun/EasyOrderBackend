@@ -1,4 +1,4 @@
-﻿using Core.Application.Contracts.Security.Interfaces;
+﻿using Core.Application.Contracts.Security.Services;
 using Core.Constants;
 using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;

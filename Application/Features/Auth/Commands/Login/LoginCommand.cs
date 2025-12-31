@@ -56,7 +56,7 @@ public class LoginCommand : IRequest<LoggedResponse>
             _authBusinessRules.UserPasswordShouldBeMatch(user!,request.LoginCustomerCommandRequest!.Password);
 
             AccessToken accessToken = await _authService.CreateAccessToken(user);
-            BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
+            RefreshToken refreshToken = (RefreshToken)await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
             await _authService.DeleteOldRefreshToken(user,request.IpAdress);
             BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
