@@ -41,5 +41,6 @@ public static class AuthMessages
     //LogOut
     public const string LogOut = "Log out";
     public const string LogOutSuccess = "Log out is success";
+    public const string Login = "New Login";
 
 }

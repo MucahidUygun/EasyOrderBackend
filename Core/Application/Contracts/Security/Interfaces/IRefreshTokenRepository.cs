@@ -66,5 +66,5 @@ public interface IRefreshTokenRepository
        bool withDeleted = false,
        bool enableTracking = true,
        CancellationToken cancellationToken = default);
-    Task<IEnumerable<BaseRefreshToken>> GetOldRefreshTokensAsync(BaseUser user,string ipAdress);
+    Task<IEnumerable<BaseRefreshToken>> GetOldRefreshTokensAsync(BaseUser user,string ipAdress, string deviceId, string deviceName, string userAgent, string platform);
 }

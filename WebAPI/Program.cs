@@ -82,6 +82,8 @@ builder.Services.AddApplicationServices(
     fileLogConfiguration: builder.Configuration.GetSection("SerilogConfigurations:FileLogConfiguration")
         .Get<FileLogConfiguration>()
         ?? throw new InvalidOperationException("FileLogConfiguration section cannot found in configuration."));
+
+
 // Bağlantı dizesini yapılandırma
 
 var app = builder.Build();
@@ -93,7 +95,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 //Hata yönetiminin başlangıçta ayağa kaldırılan yer
-//app.UseCustomExceptionMiddleware();
+app.UseCustomExceptionMiddleware();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

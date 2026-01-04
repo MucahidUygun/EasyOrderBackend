@@ -204,6 +204,10 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task<ICollection<BaseRefreshToken>> DeleteRangeAsync(ICollection<BaseRefreshToken> entities, bool permanent = false, CancellationToken cancellationToken = default)
     {
+        var refreshTokens = entities
+            .OfType<RefreshToken>()
+            .ToList();
+
         if (!permanent)
         {
             foreach (var entity in entities)
@@ -212,11 +216,11 @@ public class RefreshTokenRepository : IRefreshTokenRepository
                 entity.IsActive = false;
 
             }
-            Context.Set<RefreshToken>().UpdateRange((RefreshToken)entities);
+            Context.Set<RefreshToken>().UpdateRange(refreshTokens);
         }
         else
         {
-            Context.Set<RefreshToken>().RemoveRange((RefreshToken)entities);
+            Context.Set<RefreshToken>().RemoveRange(refreshTokens);
         }
 
         await Context.SaveChangesAsync(cancellationToken);
@@ -238,12 +242,17 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     //    return tokens;
     //}
 
-    public async Task<IEnumerable<BaseRefreshToken>> GetOldRefreshTokensAsync(BaseUser user, string ipAdress)
+    public async Task<IEnumerable<BaseRefreshToken>> GetOldRefreshTokensAsync(
+        BaseUser user, string ipAdress, string deviceId, string deviceName, string userAgent, string platform)
     {
         return await Query()
             .AsNoTracking()
             .Where(r =>
                 r.UserId == user.Id
+                && r.DeviceId == deviceId
+                && r.DeviceName == deviceName
+                && r.UserAgent == userAgent
+                && r.DevicePlatform == platform
                 && r.RevokedDate == null
                 && r.ExpiresDate >= DateTime.UtcNow
                 && r.CreatedByIp == ipAdress

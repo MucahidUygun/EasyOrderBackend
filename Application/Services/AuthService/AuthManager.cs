@@ -89,10 +89,26 @@ public class AuthManager : IAuthService
         return Task.FromResult(refreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(BaseUser user,string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user,string newToken,string reason)
     {
-        IEnumerable<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user,ipAdress);
-        List<BaseRefreshToken> tokens =refreshTokens.ToList();
+        IEnumerable<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(
+            user:user,
+            ipAdress: _httpService.GetByIpAdressFromHeaders()!,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            platform: _httpService.GetDevicePlatformFromHeaders()!
+            );
+        ICollection<BaseRefreshToken> tokens =refreshTokens.ToList();
+        foreach (BaseRefreshToken token in tokens)
+        {
+            token.RevokedDate = DateTime.UtcNow;
+            token.RevokedByIp = _httpService.GetByIpAdressFromHeaders();
+            token.ReasonRevoked = reason;
+            token.ReplacedByToken = newToken;
+            token.IsActive = false;
+            token.DeletedDate = DateTime.UtcNow;
+        }
         await _refreshTokenRepository.DeleteRangeAsync(tokens);
     }
 

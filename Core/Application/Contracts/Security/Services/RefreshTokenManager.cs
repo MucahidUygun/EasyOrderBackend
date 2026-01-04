@@ -61,9 +61,14 @@ public class RefreshTokenManager : IRefreshTokenService
         return await Task.FromResult(baseRefreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(BaseUser user, string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user)
     {
-        IEnumerable<BaseRefreshToken> tokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user, ipAdress);
+        IEnumerable<BaseRefreshToken> tokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user: user,
+            ipAdress: _httpService.GetByIpAdressFromHeaders()!,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            platform: _httpService.GetDevicePlatformFromHeaders()!);
 
         // burada list'e çevir
         List<BaseRefreshToken> tokenList = tokens.ToList();

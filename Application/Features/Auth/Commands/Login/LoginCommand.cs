@@ -50,20 +50,20 @@ public class LoginCommand : IRequest<LoggedResponse>
             _authBusinessRules.LoginRequestIsNull(request.LoginCustomerCommandRequest);
             User? user = await _authService.GetUserAsync(predicate: p=>p.Email == request.LoginCustomerCommandRequest!.Email);
             _authBusinessRules.CheckUserIsNull(user,AuthMessages.EmailCannotBeEmpty);
-            LoggedResponse loggedResponse = new LoggedResponse();
 
             _authBusinessRules.UserShouldBeExistsWhenSelected(user);
             _authBusinessRules.UserPasswordShouldBeMatch(user!,request.LoginCustomerCommandRequest!.Password);
 
-            AccessToken accessToken = await _authService.CreateAccessToken(user);
-            RefreshToken refreshToken = (RefreshToken)await _authService.CreateRefreshToken(user,ipAdress:request.IpAdress);
-            await _authService.DeleteOldRefreshToken(user,request.IpAdress);
+            AccessToken accessToken = await _authService.CreateAccessToken(user!);
+            RefreshToken refreshToken = (RefreshToken)await _authService.CreateRefreshToken(user!,ipAdress:request.IpAdress);
+            await _authService.DeleteOldRefreshToken(
+                user:user!,
+                newToken:refreshToken.Token,
+                reason: AuthMessages.Login
+                );
             BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
-            loggedResponse.AccessToken = accessToken;
-            loggedResponse.RefreshToken = addedRefreshToken;
-
-            return loggedResponse;
+            return new() { AccessToken = accessToken, RefreshToken = addedRefreshToken };
         }
     }
 }

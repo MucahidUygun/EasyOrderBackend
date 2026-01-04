@@ -26,7 +26,7 @@ public interface IAuthService
         CancellationToken cancellationToken = default
         );
     public Task<BaseRefreshToken> AddRefreshToken(RefreshToken refreshToken);
-    public Task DeleteOldRefreshToken(BaseUser user,string ipAdress);
+    public Task DeleteOldRefreshToken(BaseUser user, string newToken, string reason);
     public Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason);
 
     public Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null);
