@@ -19,12 +19,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Application.Pipelines.Validation;
+using FluentValidation;
+using Core.Application.Pipelines.Logging;
+using Core.CrossCuttingConcerns.Logging.Configurations;
+using Core.CrossCuttingConcerns.Logging.Abstraction;
+using Core.CrossCuttingConcerns.Logging.Serilog;
 
 namespace Application;
 
 public static class ApplicationServicesRegistiration
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services,
+        FileLogConfiguration fileLogConfiguration,
+        MongoDbLogConfiguration mongoDbLogConfiguration,
         MailSettings mailSettings)
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
@@ -34,10 +42,17 @@ public static class ApplicationServicesRegistiration
             //Claim kontrolünün sağlanması için altta ki satır eklendi!
             configuration.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
             configuration.AddOpenBehavior(typeof(RefreshBehavior<,>));
+            configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
+            configuration.AddOpenBehavior(typeof(RequestValidationBehavior<,>));
 
         });
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
         services.AddSingleton<IMailService, MailKitMailService>(_ => new MailKitMailService(mailSettings));
+        //services.AddSingleton<ILogger, SerilogFileLogger>(_=> new SerilogFileLogger(fileLogConfiguration));
+        services.AddSingleton<ILogger, SerilogMongoDbWithFileLogger>(_ => new SerilogMongoDbWithFileLogger(mongoDbLogConfiguration,fileLogConfiguration));
         services.AddSubClassesOfType(Assembly.GetExecutingAssembly(), typeof(BaseBusinessRules));
+
         services.AddScoped<ICustomerService, CustomerManager>();
         services.AddScoped<IIndividualCustomerService, IndividualCustomerManager>();
         services.AddScoped<ICorporateCustomerService, CorporateCustomerManager>();

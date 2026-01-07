@@ -4,7 +4,9 @@ using Core.Entities;
 using Core.Security.JWT;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace Core.Application.Contracts.Security.Services;
 
@@ -17,6 +19,11 @@ public class HttpManager : IHttpService
     {
         _httpContextAccessor = httpContextAccessor;
         _httpContext = _httpContextAccessor.HttpContext;
+    }
+
+    public void DeleteRefreshTokenFromCookie()
+    {
+        _httpContextAccessor.HttpContext!.Response.Cookies.Delete("refreshToken");
     }
 
     public string? GetAccessTokenFromHeaders()
@@ -35,9 +42,35 @@ public class HttpManager : IHttpService
         : _httpContext!.Connection.RemoteIpAddress?.MapToIPv4().ToString();
     }
 
+    public string? GetDeviceIdAdressFromHeaders()
+    {
+        return _httpContext!.Request.Headers.ContainsKey("X-Device-Id")
+        ? _httpContext!.Request.Headers["X-Device-Id"].ToString()
+        : null;
+    }
+
+    public string? GetDeviceNameFromHeaders()
+    {
+        return _httpContext!.Request.Headers.ContainsKey("X-Device-Name")
+        ? _httpContext!.Request.Headers["X-Device-Name"].ToString()
+        : null;
+    }
+
+    public string? GetDevicePlatformFromHeaders()
+    {
+        return _httpContext!.Request.Headers.ContainsKey("X-Platform")
+        ? _httpContext!.Request.Headers["X-Platform"].ToString()
+        : null;
+    }
+
     public string? GetRefreshTokenFromCookie()
     {
         return _httpContext!.Request.Cookies.FirstOrDefault(p => p.Key.Equals("refreshToken")).Value;
+    }
+
+    public string? GetUserAgentFromHeaders()
+    {
+        return _httpContext!.Request.Headers["User-Agent"];
     }
 
     public void SetAccessTokenAndRefreshTokenFromRequest(BaseUser user, List<BaseClaim> baseClaims, AccessToken newAccessToken, BaseRefreshToken refreshToken)

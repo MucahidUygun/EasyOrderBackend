@@ -3,6 +3,7 @@ using Application.Features.CorporateCustomers.Dtos.Responses;
 using Application.Features.CorporateCustomers.Rules;
 using Application.Services.CorporateCustomers;
 using AutoMapper;
+using Core.Application.Pipelines.Logging;
 using Domain.Entities;
 using MediatR;
 using System;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.CorporateCustomers.Commands.Update;
 
-public class UpdateCorporateCustomerCommand : IRequest<UpdatedCorporateCustomerResponse>
+public class UpdateCorporateCustomerCommand : IRequest<UpdatedCorporateCustomerResponse>, ILoggableRequest
 {
     public UpdateCorporateCustomerRequest updateCorporateCustomerRequest {  get; set; }
 

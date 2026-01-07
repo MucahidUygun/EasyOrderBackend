@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities;
 
-//public class RefreshToken : BaseRefreshToken
-//{
-//    public virtual User User { get; set; }    
-//}
+public class RefreshToken : BaseRefreshToken
+{
+    public virtual User User { get; set; }    
+}

@@ -12,8 +12,8 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(BaseDbContext))]
-    [Migration("20251031201100_SeedOperationClaims")]
-    partial class SeedOperationClaims
+    [Migration("20251231202836_fixes")]
+    partial class fixes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,56 @@ namespace Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Entities.EmailAuthenticator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("ActivationKey")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ActivationKey");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletedDate");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("IsVerified");
+
+                    b.Property<bool?>("ResetPasswordToken")
+                        .HasColumnType("bit")
+                        .HasColumnName("ResetPasswordToken");
+
+                    b.Property<DateTime?>("ResetPasswordTokenExpiry")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("ResetPasswordTokenExpiry");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("UpdatedDate");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserId");
+
+                    b.Property<DateTime?>("VerifyEmailTokenExpiry")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("VerifyEmailTokenExpiry");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmailAuthenticators", (string)null);
+                });
 
             modelBuilder.Entity("Domain.Entities.OperationClaim", b =>
                 {
@@ -81,9 +131,6 @@ namespace Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Id");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("CreatedByIp")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -97,7 +144,21 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletedDate");
 
-                    b.Property<DateTime>("Expires")
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("DeviceId");
+
+                    b.Property<string>("DeviceName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("DeviceName");
+
+                    b.Property<string>("DevicePlatform")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("DevicePlatform");
+
+                    b.Property<DateTime>("ExpiresDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("ExpiresDate");
 
@@ -112,13 +173,13 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ReplacedByToken");
 
-                    b.Property<DateTime?>("Revoked")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("RevokedDate");
-
                     b.Property<string>("RevokedByIp")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("RevokedByIp");
+
+                    b.Property<DateTime?>("RevokedDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("RevokedDate");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -129,13 +190,23 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("UpdatedDate");
 
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("UserAgent");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserId");
 
+                    b.Property<Guid?>("UserId3")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId3");
 
                     b.ToTable("RefreshToken", (string)null);
                 });
@@ -308,6 +379,17 @@ namespace Persistence.Migrations
                     b.ToTable("IndivisualCustomers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.EmailAuthenticator", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("EmailAuthenticators")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -315,6 +397,11 @@ namespace Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId3")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
                 });
@@ -328,7 +415,7 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UserOperationClaims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -372,6 +459,15 @@ namespace Persistence.Migrations
                         .HasForeignKey("Domain.Entities.IndividualCustomer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Navigation("EmailAuthenticators");
+
+                    b.Navigation("RefreshTokens");
+
+                    b.Navigation("UserOperationClaims");
                 });
 #pragma warning restore 612, 618
         }

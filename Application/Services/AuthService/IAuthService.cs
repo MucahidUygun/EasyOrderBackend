@@ -25,8 +25,8 @@ public interface IAuthService
         bool enableTracking = false,
         CancellationToken cancellationToken = default
         );
-    public Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken);
-    public Task DeleteOldRefreshToken(BaseUser user,string ipAdress);
+    public Task<BaseRefreshToken> AddRefreshToken(RefreshToken refreshToken);
+    public Task DeleteOldRefreshToken(BaseUser user, string newToken, string reason);
     public Task RevokeDescendantRefreshTokens(BaseRefreshToken refreshToken, string ipAddress, string reason);
 
     public Task RevokeRefreshToken(BaseRefreshToken token, string ipAddress, string? reason = null, string? replacedByToken = null);
@@ -50,7 +50,4 @@ public interface IAuthService
         bool withDeleted = false,
         bool enableTracking = true,
         CancellationToken cancellationToken = default);
-    public string? GetRefreshTokenFromCookie();
-    public string? GetByIpAdressFromHeaders();
-    public void DeleteRefreshTokenFromCookie();
 }

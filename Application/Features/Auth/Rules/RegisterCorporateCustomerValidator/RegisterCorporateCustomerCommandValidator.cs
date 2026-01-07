@@ -13,13 +13,13 @@ public class RegisterCorporateCustomerCommandValidator : AbstractValidator<Regis
     public RegisterCorporateCustomerCommandValidator()
     {
         RuleFor(x => x.RegisterCorporateCustomerRequests)
-    .NotNull()
-    .WithMessage("Request null")
-    .Must(x =>
-    {
-        Console.WriteLine("ChildRules çalıştı");
-        return true;
-    });
+            .NotNull()
+            .WithMessage("Request null")
+            .Must(x =>
+        {
+            Console.WriteLine("ChildRules çalıştı");
+            return true;
+        });
 
         RuleFor(p => p.RegisterCorporateCustomerRequests).NotNull().ChildRules(
             request =>

@@ -1,9 +1,11 @@
 ﻿using Core.Application.Contracts.Security.Interfaces;
 using Core.Constants;
+using Core.CrossCuttingConcerns.Expeptions.Types;
 using Core.Entities;
 using Core.Security.Enums;
 using Core.Security.JWT;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Driver.Authentication.Oidc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +18,15 @@ public class RefreshTokenManager : IRefreshTokenService
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly ITokenHelper _tokenHelper;
+    private readonly IHttpService _httpService;
+    private readonly IJwtService _jwtService;
 
-    public RefreshTokenManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper)
+    public RefreshTokenManager(IRefreshTokenRepository refreshTokenRepository, ITokenHelper tokenHelper, IHttpService httpService, IJwtService jwtService)
     {
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
+        _httpService = httpService;
+        _jwtService = jwtService;
     }
 
     public async Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken refreshToken)
@@ -38,15 +44,38 @@ public class RefreshTokenManager : IRefreshTokenService
 
     public async Task<BaseRefreshToken> CreateRefreshToken(BaseUser user, string ipAdress)
     {
-        BaseRefreshToken coreRefreshToken = _tokenHelper.CreateRefreshToken(user, ipAdress);
+        if (_httpService.GetDeviceIdAdressFromHeaders() is null
+          && _httpService.GetUserAgentFromHeaders() is null
+          && _httpService.GetDevicePlatformFromHeaders() is null
+          )
+            throw new AuthorizationException("You are not auth");
 
-        return await Task.FromResult(coreRefreshToken);
+        BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(
+            user: user,
+            ipAdress: ipAdress,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            devicePlatform: _httpService.GetDevicePlatformFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders());
+
+        return await Task.FromResult(baseRefreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(BaseUser user, string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user)
     {
-        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user, ipAdress);
-        await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
+        IEnumerable<BaseRefreshToken> tokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user: user,
+            ipAdress: _httpService.GetByIpAdressFromHeaders()!,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            platform: _httpService.GetDevicePlatformFromHeaders()!);
+
+        // burada list'e çevir
+        List<BaseRefreshToken> tokenList = tokens.ToList();
+
+
+        //List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user, ipAdress);
+        await _refreshTokenRepository.DeleteRangeAsync(tokenList);
     }
 
     public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken,string ipAdress,bool withDeleted=false)
@@ -63,6 +92,40 @@ public class RefreshTokenManager : IRefreshTokenService
         if (baseRefreshToken.ExpiresDate >= DateTime.UtcNow) return RefreshTokenValidType.Active;
         if (baseRefreshToken.RevokedDate <= DateTime.Now || baseRefreshToken.Token is null) return RefreshTokenValidType.Expired;
         else return RefreshTokenValidType.Deleted;
+    }
+
+    public async Task RefreshAsync(string refreshToken, string ip,string oldAccessToken)
+    {
+        Guid id = Guid.Parse(input: _jwtService.GetIdFromOldAccesToken(oldAccessToken));
+
+        BaseUser user = new()
+        {
+            Id = id,
+            Email = _jwtService.GetEmailFromOldAccesToken(oldAccessToken),
+
+        };
+        List<BaseClaim> baseClaims = _jwtService.GetClaimsByKey(oldAccessToken, CoreMessages.CliamRole);
+
+        RefreshTokenValidType validType = await GetRefreshTokenValidType(refreshToken, ip!, user);
+
+        switch (validType)
+        {
+            case RefreshTokenValidType.Active:
+                BaseRefreshToken createdRefreshToken = await RotateRefreshToken(user, refreshToken, ip);
+                AccessToken accessToken = CreateAccessToken(user, baseClaims);
+                _httpService.SetAccessTokenAndRefreshTokenFromRequest(user, baseClaims, accessToken, createdRefreshToken);
+                break;
+            case RefreshTokenValidType.Expired:
+                BaseRefreshToken? revokeRefreshToken = await GetRefreshTokenByToken(refreshToken, ip);
+                await RevokeRefreshToken(revokeRefreshToken!, ip, reason: CoreMessages.TokenExpired);
+                throw new AuthorizationException(CoreMessages.LogIn);
+            case RefreshTokenValidType.Deleted:
+                BaseRefreshToken? revokeAllRefreshToken = await GetRefreshTokenByToken(refreshToken, ip);
+                await RevokeDescendantRefreshTokens(revokeAllRefreshToken!, ip, CoreMessages.TokenReuseDetected);
+                break;
+            case RefreshTokenValidType.NotFound:
+                throw new AuthorizationException(CoreMessages.NotAuthorized);
+        }
     }
 
     //RefreshToken zincirinde ki aktif olan hariç hepsinin iptali 
@@ -93,11 +156,24 @@ public class RefreshTokenManager : IRefreshTokenService
         await _refreshTokenRepository.UpdateAsync(token);
     }
     //Üretilen RefreshTokenı eski RefreshTokena bağlama
-    public async Task<BaseRefreshToken> RotateRefreshToken(BaseUser user, string refreshToken, string ipAddress)
+    public async Task<BaseRefreshToken> RotateRefreshToken(BaseUser user, string refreshToken, string ipAdress)
     {
-        BaseRefreshToken? hasRefreshToken = await GetRefreshTokenByToken(refreshToken,ipAddress);
-        BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(user, ipAddress);
-        await RevokeRefreshToken(hasRefreshToken!, ipAddress, reason: CoreMessages.ReplacedByNewToken, baseRefreshToken.Token);
+        if (_httpService.GetDeviceIdAdressFromHeaders() is null
+           && _httpService.GetUserAgentFromHeaders() is null
+           && _httpService.GetDevicePlatformFromHeaders() is null
+           )
+            throw new AuthorizationException("You are not auth");
+
+        BaseRefreshToken? hasRefreshToken = await GetRefreshTokenByToken(refreshToken,ipAdress);
+
+        BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(
+            user: user,
+            ipAdress: ipAdress,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            devicePlatform: _httpService.GetDevicePlatformFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders());
+        await RevokeRefreshToken(hasRefreshToken!, ipAdress, reason: CoreMessages.ReplacedByNewToken, baseRefreshToken.Token);
         await AddRefreshToken(baseRefreshToken);
 
         return baseRefreshToken;

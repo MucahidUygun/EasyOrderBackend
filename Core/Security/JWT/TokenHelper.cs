@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Core.Application.Contracts.Security.Interfaces;
+using Core.Entities;
 using Core.Security.Encryption;
 using Core.Security.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -20,11 +21,13 @@ public class TokenHelper : ITokenHelper
     public IConfiguration Configuration { get;}
     private readonly TokenOptions? _tokenOptions;
     private DateTime _accessTokenExpiration;
+    private readonly IRefreshTokenFactory _refreshTokenFactory;
 
-    public TokenHelper(IConfiguration configuration)
+    public TokenHelper(IConfiguration configuration, IRefreshTokenFactory refreshTokenFactory)
     {
         Configuration = configuration;
         _tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+        _refreshTokenFactory = refreshTokenFactory;
     }
 
     public AccessToken CreateToken(BaseUser user, IList<BaseClaim> operationClaims)
@@ -44,17 +47,9 @@ public class TokenHelper : ITokenHelper
         };
     }
 
-    public BaseRefreshToken CreateRefreshToken(BaseUser user, string ipAdress)
+    public BaseRefreshToken CreateRefreshToken(BaseUser user, string ipAdress,string deviceId,string? deviceName,string userAgent,string devicePlatform)
     {
-        BaseRefreshToken refreshToken = new()
-        {
-            UserId = user.Id,
-            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            ExpiresDate = DateTime.UtcNow.AddDays(_tokenOptions!.RefreshTokenTTL),
-            CreatedByIp = ipAdress,
-        };
-
-        return refreshToken;
+        return _refreshTokenFactory.Create(user:user,ipAdress:ipAdress,deviceId:deviceId,deviceName:deviceName,userAgent:userAgent,devicePlatform:devicePlatform);
     }
 
     public JwtSecurityToken CreateJwtSecurityToken(TokenOptions tokenOptions, BaseUser user,

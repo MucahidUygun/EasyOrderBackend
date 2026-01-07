@@ -13,5 +13,10 @@ public interface IHttpService
     public string? GetAccessTokenFromHeaders();
     public string? GetRefreshTokenFromCookie();
     public string? GetByIpAdressFromHeaders();
+    public string? GetDeviceIdAdressFromHeaders();
+    public string? GetDeviceNameFromHeaders();
+    public string? GetDevicePlatformFromHeaders();
+    public void DeleteRefreshTokenFromCookie();
+    public string? GetUserAgentFromHeaders();
     public void SetAccessTokenAndRefreshTokenFromRequest(BaseUser user, List<BaseClaim> baseClaims, AccessToken newAccessToken, BaseRefreshToken refreshToken);
 }

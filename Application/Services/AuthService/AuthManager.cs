@@ -29,8 +29,8 @@ public class AuthManager : IAuthService
     private readonly IUserOperationClaimRepository _userOperationClaimRepository;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IEmailAuthenticatorRepository _emailAuthenticatorRepository;
+    private readonly IHttpService _httpService;
 
     public AuthManager(
     IRefreshTokenRepository refreshTokenRepository,
@@ -38,21 +38,20 @@ public class AuthManager : IAuthService
     IMapper mapper,
     IUserOperationClaimRepository userOperationClaimRepository,
     IUserRepository userRepository,
-    IHttpContextAccessor httpContextAccessor
-,
-    IEmailAuthenticatorRepository emailAuthenticatorRepository)
+    IEmailAuthenticatorRepository emailAuthenticatorRepository,
+    IHttpService httpService)
     {
-        _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
         _userOperationClaimRepository = userOperationClaimRepository;
         _refreshTokenRepository = refreshTokenRepository;
         _tokenHelper = tokenHelper;
         _mapper = mapper;
         _emailAuthenticatorRepository = emailAuthenticatorRepository;
+        _httpService = httpService;
     }
 
 
-    public async Task<BaseRefreshToken> AddRefreshToken(BaseRefreshToken baseRefreshToken)
+    public async Task<BaseRefreshToken> AddRefreshToken(RefreshToken baseRefreshToken)
     {
         BaseRefreshToken addedBaseRefreshToken = await _refreshTokenRepository.AddAsync(baseRefreshToken); 
 
@@ -73,17 +72,44 @@ public class AuthManager : IAuthService
 
     public Task<BaseRefreshToken> CreateRefreshToken(User user, string ipAdress)
     {
-        BaseRefreshToken coreRefreshToken = _tokenHelper.CreateRefreshToken(user,ipAdress);
+        if (_httpService.GetDeviceIdAdressFromHeaders() is null
+            && _httpService.GetUserAgentFromHeaders() is null
+            && _httpService.GetDevicePlatformFromHeaders() is null
+            )
+            throw new AuthorizationException("You are not auth");
 
-        BaseRefreshToken refreshToken = _mapper.Map<BaseRefreshToken>(coreRefreshToken);
+        BaseRefreshToken refreshToken = _tokenHelper.CreateRefreshToken(
+            user:user,
+            ipAdress:ipAdress,
+            deviceId:_httpService.GetDeviceIdAdressFromHeaders()!,
+            userAgent:_httpService.GetUserAgentFromHeaders()!,
+            devicePlatform:_httpService.GetDevicePlatformFromHeaders()!,
+            deviceName:_httpService.GetDeviceNameFromHeaders());
 
         return Task.FromResult(refreshToken);
     }
 
-    public async Task DeleteOldRefreshToken(BaseUser user,string ipAdress)
+    public async Task DeleteOldRefreshToken(BaseUser user,string newToken,string reason)
     {
-        List<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(user,ipAdress);
-        await _refreshTokenRepository.DeleteRangeAsync(refreshTokens);
+        IEnumerable<BaseRefreshToken> refreshTokens = await _refreshTokenRepository.GetOldRefreshTokensAsync(
+            user:user,
+            ipAdress: _httpService.GetByIpAdressFromHeaders()!,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            platform: _httpService.GetDevicePlatformFromHeaders()!
+            );
+        ICollection<BaseRefreshToken> tokens =refreshTokens.ToList();
+        foreach (BaseRefreshToken token in tokens)
+        {
+            token.RevokedDate = DateTime.UtcNow;
+            token.RevokedByIp = _httpService.GetByIpAdressFromHeaders();
+            token.ReasonRevoked = reason;
+            token.ReplacedByToken = newToken;
+            token.IsActive = false;
+            token.DeletedDate = DateTime.UtcNow;
+        }
+        await _refreshTokenRepository.DeleteRangeAsync(tokens);
     }
 
     public async Task<BaseRefreshToken?> GetRefreshTokenByToken(string refreshToken)
@@ -140,13 +166,25 @@ public class AuthManager : IAuthService
         await _refreshTokenRepository.UpdateAsync(token);
     }
 
-    public async Task<BaseRefreshToken> RotateRefreshToken(User user, BaseRefreshToken refreshToken, string ipAddress)
+    public async Task<BaseRefreshToken> RotateRefreshToken(User user, BaseRefreshToken refreshToken, string ipAdress)
     {
-        BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(user,ipAddress);
-        BaseRefreshToken newRefreshToken = _mapper.Map<BaseRefreshToken>(baseRefreshToken);
-        await RevokeRefreshToken(refreshToken,ipAddress,reason: "Replaced by new token", newRefreshToken.Token);
+        if (_httpService.GetDeviceIdAdressFromHeaders() is null
+           && _httpService.GetUserAgentFromHeaders() is null
+           && _httpService.GetDevicePlatformFromHeaders() is null
+           )
+            throw new AuthorizationException("You are not auth");
 
-        return newRefreshToken;
+        BaseRefreshToken baseRefreshToken = _tokenHelper.CreateRefreshToken(
+            user: user, 
+            ipAdress: ipAdress,
+            deviceId: _httpService.GetDeviceIdAdressFromHeaders()!,
+            userAgent: _httpService.GetUserAgentFromHeaders()!,
+            devicePlatform: _httpService.GetDevicePlatformFromHeaders()!,
+            deviceName: _httpService.GetDeviceNameFromHeaders());
+
+        await RevokeRefreshToken(refreshToken,ipAdress,reason: "Replaced by new token", baseRefreshToken.Token);
+
+        return baseRefreshToken;
     }
 
     public async Task<EmailAuthenticator?> VeriyfEmailAsync(Guid Id, string activationKey)
@@ -193,21 +231,7 @@ public class AuthManager : IAuthService
     {
         return await _emailAuthenticatorRepository.GetAsync(predicate, include, withDeleted, enableTracking,cancellationToken);
     }
-    public string? GetByIpAdressFromHeaders()
-    {
-        return _httpContextAccessor.HttpContext!.Request.Headers.ContainsKey("X-Forwarded-For")
-        ? _httpContextAccessor.HttpContext!.Request.Headers["X-Forwarded-For"].ToString()
-        : _httpContextAccessor.HttpContext!.Connection.RemoteIpAddress?.MapToIPv4().ToString();
-    }
 
-    public string? GetRefreshTokenFromCookie()
-    {
-        return _httpContextAccessor.HttpContext!.Request.Cookies.FirstOrDefault(p => p.Key.Equals("refreshToken")).Value;
-    }
-
-    public void DeleteRefreshTokenFromCookie()
-    {
-       _httpContextAccessor.HttpContext!.Response.Cookies.Delete("refreshToken");
-    }
+   
 
 }

@@ -74,7 +74,7 @@ public class RegisterEmployeeCommand : IRequest<RegisteredResponse>
 
             AccessToken accessToken = await _authService.CreateAccessToken(addedEmployee);
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(addedEmployee, request.IpAdress);
-            BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
+            //BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
 
             RegisteredResponse response = new() {Message = AuthMessages.SendEmailForEmailActivate };
             return response;

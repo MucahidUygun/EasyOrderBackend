@@ -80,7 +80,7 @@ public class RegisterIndividualCustomerCommand:IRequest<RegisteredResponse>
 
             AccessToken accessToken = await _authService.CreateAccessToken(individualCustomer);
             BaseRefreshToken refreshToken = await _authService.CreateRefreshToken(individualCustomer,request.IpAdress);
-            BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
+            //BaseRefreshToken addedRefreshToken = await _authService.AddRefreshToken(refreshToken);
             RegisteredResponse registeredResponse = new() { Message = AuthMessages.SendEmailForEmailActivate };
 
             return registeredResponse;
